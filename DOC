@@ -14,3 +14,8 @@ sudo apt install python3 python3-pip
 sudo python3 -m pip install numpy np opencv-python pyueye
 
 
+
+# Python IDS implementations
+# http://www.ux.uis.no/~karlsk/ELE610/
+# https://github.com/FSTDriverless/FSTImplementation
+# https://repositorio-aberto.up.pt/bitstream/10216/116586/2/297384.pdf
