@@ -1,0 +1,16 @@
+Manuaali vaatii rekisteröitymisen: https://en.ids-imaging.com/manuals/uEye_SDK/EN/uEye_Manual_4.91.1/index.html
+
+Sample:
+https://en.ids-imaging.com/programming-examples.html / Python : https://en.ids-imaging.com/programming-examples.html?file=tl_files/downloads/programmingexamples/uEye_SimpleLive_PyuEye_OpenCV.zip
+
+
+Ajurit Windows / Linux (Ubuntu, Debian) Vaatii rekisteröitymisen
+
+https://en.ids-imaging.com/download-ueye-win32.html
+
+sudo apt install python3 python3-pip
+
+
+sudo python3 -m pip install numpy np opencv-python pyueye
+
+
