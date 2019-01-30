@@ -37,4 +37,5 @@ while camera.IsGrabbing():
 # Releasing the resource    
 camera.StopGrabbing()
 
+
 cv2.destroyAllWindows()
