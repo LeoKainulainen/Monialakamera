@@ -17,10 +17,15 @@ import tempfile
 # os.environ["PYLON_CAMEMU"] = "1"
 
 
+# Check file height here
+
 width = 1920
+#height from, because 1-peloton-finishlynx.jpg
 height = 1008
 
 #jpg to numpy
+#
+# here..
 
 test_pattern = np.fromfunction(lambda i, j, k: j % 256, (height, width,3 ), dtype=np.int16)
 
