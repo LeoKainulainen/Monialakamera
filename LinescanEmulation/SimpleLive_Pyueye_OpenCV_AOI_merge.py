@@ -143,7 +143,9 @@ print("\tbytes_per_pixel: \t\t", bytes_per_pixel)
 print()
 
 
+
 ## AOI Merge mode
+# https://en.ids-imaging.com/manuals/uEye_SDK/EN/uEye_Manual_4.91.1/index.html
 
 nVerticalAoiMergeMode = ueye.int(0)
 nVerticalAoiMergePosition = ueye.int(0)
