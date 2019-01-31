@@ -53,7 +53,7 @@ series_width = AOI_w
 
 
 #number of frames: to have whole image, set this to the width of image
-series_length = 100
+series_length = width
 
 
 test_pattern[:,:,1]
@@ -89,9 +89,9 @@ def create_pattern():
     else:
         for i in range(series_length):
             pattern = np.roll(test_pattern,i,axis=1)
-            pattern = pattern[0:0+height, 0:0+series_width]
+            pattern = pattern[0:0+height, -series_width:width]
             pattern = cv2.cvtColor(pattern, cv2.COLOR_RGB2BGR)
-            cv2.imwrite(os.path.join(img_dir,"pattern_%03d.png"%i), pattern)
+            cv2.imwrite(os.path.join(img_dir,"pattern_%05d.png"%i), pattern)
             # write in to memory??
             # cv2.imwrite("pattern_%03d.png"%i, pattern)
 
