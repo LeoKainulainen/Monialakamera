@@ -18,37 +18,58 @@ import tempfile
 # os.environ["PYLON_CAMEMU"] = "1"
 
 
-# Check file height here
 
-width = 1920
-#height from, because 1-peloton-finishlynx.jpg
-height = 1008
 
-#jpg to numpy
+#jpg to numpy testing
 #
 # here..
-
 # test_pattern = "..\\test_images\\1-peloton-finishlynx.jpg"
-
 # test_pattern = cv2.imread("..\\test_images\\1-peloton-finishlynx.jpg")
-
-test_pattern = np.array(Image.open("..\\test_images\\1-peloton-finishlynx.jpg"))
-
-test_pattern = np.array(Image.open("..\\test_images\\1-peloton-finishlynx-short.png"))
-
+# test_pattern = np.array(Image.open("..\\test_images\\1-peloton-finishlynx.jpg"))
 # test_pattern = np.fromfunction(cv2.imread("..\\test_images\\1-peloton-finishlynx.jpg"))
-
 # test_pattern = np.fromfunction(lambda i, j, k: j % 256, (height, width,3 ), dtype=np.int16)
+test_pattern = np.array(Image.open("..\\test_images\\1-peloton-finishlynx-shorter.png"))
+
+
+# Check image height
+height = int(test_pattern.shape[0])
+print(height)
+# Check image width
+width = int(test_pattern.shape[1])
+print(width)
+# width = 1920
+
+#"AOI" width, set to 2 or 4 for accurate capture when using a camera at AOI of **** x 2px
+#
+
+AOI_h = height
+AOI_w = 100
+
+series_width = AOI_w
+
+#height from, because 1-peloton-finishlynx.jpg
+# height = 1008
+
+
+
+#number of frames: to have whole image, set this to the width of image
+series_length = 100
+
 
 test_pattern[:,:,1]
 
-print("testi array")
+# print("testi array")
 # print(test_pattern[0,:])
+
+# Load to memory here...?
+#
+# img_dir = tempfile.mkdtemp()
+# img_dir = tempfile.SpooledTemporaryFile()
 
 img_dir = "..\\test_roll\\"
 
-# img_dir = "..\\test_images\\1-peloton-finishlynx-shorter.png"
 
+#Path of first generated image for checking pre-existing images with exists()
 path = os.path.join(img_dir,"pattern_000.png")
 print(path)
 
@@ -66,12 +87,24 @@ def create_pattern():
     if exists(path):
         return
     else:
-        for i in range(600):
+        for i in range(series_length):
             pattern = np.roll(test_pattern,i,axis=1)
+            pattern = pattern[0:0+height, 0:0+series_width]
             pattern = cv2.cvtColor(pattern, cv2.COLOR_RGB2BGR)
             cv2.imwrite(os.path.join(img_dir,"pattern_%03d.png"%i), pattern)
+            # write in to memory??
+            # cv2.imwrite("pattern_%03d.png"%i, pattern)
+
+def create_video():
+    writer = cv2.VideoWriter("output.avi",cv2.VideoWriter_fourcc(*"MJPG"), 500,(width,height))
+    for i in range(1000):
+        pattern = np.roll(test_pattern,i,axis=1)
+        pattern = cv2.cvtColor(pattern, cv2.COLOR_RGB2BGR)
+        writer.write(np.random.randint(0, 255, (width,height,3)).astype('uint8'))
+        
 
 create_pattern()
+# create_video()
 
 cam = py.InstantCamera(py.TlFactory.GetInstance().CreateFirstDevice())
 cam.Open()
