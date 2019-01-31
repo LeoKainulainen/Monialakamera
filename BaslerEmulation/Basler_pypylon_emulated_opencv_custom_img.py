@@ -1,6 +1,5 @@
 '''
-A simple Program for grabing video from basler camera and converting it to opencv img.
-Tested on Basler acA1300-200uc (USB3, linux 64bit , python 3.5)
+Test program for creating & emulating Linescan of specified framewdith (AOI) with Basler python wrapper API
 '''
 import numpy as np
 import matplotlib.pyplot as plt
@@ -95,6 +94,7 @@ def create_pattern():
             # write in to memory??
             # cv2.imwrite("pattern_%03d.png"%i, pattern)
 
+# testing video creation in opecv
 def create_video():
     writer = cv2.VideoWriter("output.avi",cv2.VideoWriter_fourcc(*"MJPG"), 500,(width,height))
     for i in range(1000):
