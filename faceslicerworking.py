@@ -16,7 +16,7 @@ def splice_image ():
     ###Käy läpi kuvan pikselirivi kerrallaan
     for row in data:
 
-           ###Tallentaa jokaisen rivin erikseen
+           ###HUOM TALLENTAA TIETOKONEELLE NIIN MOINTA KUVAA KUIN PIKSELIRIVEJÄ ON KUVASSA!!!
            imgfrom = Image.fromarray(row.astype('uint8'))
            path = "faces/"+"faces %s" % pathcounter +".jpg"
            imgfrom.save(path)
