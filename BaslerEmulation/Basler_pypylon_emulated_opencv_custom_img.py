@@ -1,10 +1,10 @@
 '''
-A simple Program for grabing video from basler camera and converting it to opencv img.
-Tested on Basler acA1300-200uc (USB3, linux 64bit , python 3.5)
+Test program for creating & emulating Linescan of specified framewdith (AOI) with Basler python wrapper API
 '''
 import numpy as np
 import matplotlib.pyplot as plt
 from pypylon import pylon as py
+from PIL import Image
 import cv2
 import os
 import tempfile
@@ -17,31 +17,94 @@ import tempfile
 # os.environ["PYLON_CAMEMU"] = "1"
 
 
-# Check file height here
 
-width = 1920
-#height from, because 1-peloton-finishlynx.jpg
-height = 1008
 
-#jpg to numpy
+#jpg to numpy testing
 #
 # here..
+# test_pattern = "..\\test_images\\1-peloton-finishlynx.jpg"
+# test_pattern = cv2.imread("..\\test_images\\1-peloton-finishlynx.jpg")
+# test_pattern = np.array(Image.open("..\\test_images\\1-peloton-finishlynx.jpg"))
+# test_pattern = np.fromfunction(cv2.imread("..\\test_images\\1-peloton-finishlynx.jpg"))
+# test_pattern = np.fromfunction(lambda i, j, k: j % 256, (height, width,3 ), dtype=np.int16)
+test_pattern = np.array(Image.open("..\\test_images\\1-peloton-finishlynx-shorter.png"))
 
-test_pattern = np.fromfunction(lambda i, j, k: j % 256, (height, width,3 ), dtype=np.int16)
+
+# Check image height
+height = int(test_pattern.shape[0])
+print(height)
+# Check image width
+width = int(test_pattern.shape[1])
+print(width)
+# width = 1920
+
+#"AOI" width, set to 2 or 4 for accurate capture when using a camera at AOI of **** x 2px
+#
+
+AOI_h = height
+AOI_w = 100
+
+series_width = AOI_w
+
+#height from, because 1-peloton-finishlynx.jpg
+# height = 1008
+
+
+
+#number of frames: to have whole image, set this to the width of image
+series_length = width
+
 
 test_pattern[:,:,1]
 
-print("testi array")
-print(test_pattern[0,:])
+# print("testi array")
+# print(test_pattern[0,:])
 
-img_dir = tempfile.mkdtemp()
+# Load to memory here...?
+#
+# img_dir = tempfile.mkdtemp()
+# img_dir = tempfile.SpooledTemporaryFile()
 
-# img_dir = "..\\test_images\\1-peloton-finishlynx.jpg"
+img_dir = "..\\test_roll\\"
 
-for i in range(256):
-    pattern = np.roll(test_pattern,i,axis=1)
-    cv2.imwrite(os.path.join(img_dir,"pattern_%03d.png"%i), pattern)
 
+#Path of first generated image for checking pre-existing images with exists()
+path = os.path.join(img_dir,"pattern_000.png")
+print(path)
+
+def exists(path):
+    "Check if path (image) exists"
+    try:
+        st = os.stat(path)
+    except os.error:
+        return False
+    return True
+
+
+def create_pattern():
+    "create 600 images with numpy roll"
+    if exists(path):
+        return
+    else:
+        for i in range(series_length):
+            pattern = np.roll(test_pattern,i,axis=1)
+            pattern = pattern[0:0+height, -series_width:width]
+            pattern = cv2.cvtColor(pattern, cv2.COLOR_RGB2BGR)
+            cv2.imwrite(os.path.join(img_dir,"pattern_%05d.png"%i), pattern)
+            # write in to memory??
+            # cv2.imwrite("pattern_%03d.png"%i, pattern)
+
+# testing video creation in opecv
+def create_video():
+    writer = cv2.VideoWriter("output.avi",cv2.VideoWriter_fourcc(*"MJPG"), 500,(width,height))
+    for i in range(1000):
+        pattern = np.roll(test_pattern,i,axis=1)
+        pattern = cv2.cvtColor(pattern, cv2.COLOR_RGB2BGR)
+        writer.write(np.random.randint(0, 255, (width,height,3)).astype('uint8'))
+        
+
+create_pattern()
+# create_video()
 
 cam = py.InstantCamera(py.TlFactory.GetInstance().CreateFirstDevice())
 cam.Open()
@@ -57,9 +120,10 @@ cam.TestImageSelector = "Off"
 
 # choose one pixel format. camera emulation does conversion on the fly
 cam.PixelFormat = "Mono8"
+# cam.PixelFormat = "RGB"
 
 
-cam.StartGrabbingMax(100)
+cam.StartGrabbing()
 
 # while cam.IsGrabbing():
 #     res = cam.RetrieveResult(1000)
@@ -78,8 +142,12 @@ cam.StartGrabbingMax(100)
 # cam.StartGrabbing(py.GrabStrategy_LatestImageOnly) 
 converter = py.ImageFormatConverter()
 
-# converting to opencv bgr format
-converter.OutputPixelFormat = py.PixelType_BGR8packed
+# # converting to opencv bgr format
+# converter.OutputPixelFormat = py.PixelType_BGR8packed
+# converter.OutputBitAlignment = py.OutputBitAlignment_MsbAligned
+
+# converting to opencv RGB format
+converter.OutputPixelFormat = py.PixelType_RGB8packed
 converter.OutputBitAlignment = py.OutputBitAlignment_MsbAligned
 
 while cam.IsGrabbing():
@@ -88,9 +156,21 @@ while cam.IsGrabbing():
     if grabResult.GrabSucceeded():
         # Access the image data
         image = converter.Convert(grabResult)
-        img = image.GetArray()
-        cv2.namedWindow('title', cv2.WINDOW_NORMAL)
-        cv2.imshow('press esc', img)
+        frame = image.GetArray()
+
+        cv2.rectangle(frame,(100,200),(200,300),(0,0,255),5)
+
+        cv2width = int(width)
+        cv2height = int(height/2)
+
+
+        cv2.line(frame,(0,cv2height),(cv2width,cv2height),(255,0,0),5)
+
+        frame = cv2.resize(frame,(0,0),fx=0.5, fy=0.5)
+        
+        frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+
+        cv2.imshow('press esc', frame)
         k = cv2.waitKey(1)
         if k == 27:
             break

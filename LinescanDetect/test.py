@@ -12,6 +12,7 @@ import ctypes
 
 #näytön resoluutio
 user32 = ctypes.windll.user32
+#windows only screen res
 screensize = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
 print(screensize)
 screenwidth = screensize[0]
@@ -33,7 +34,7 @@ def resize_keep_aspect(resize_image):
 # img = cv2.imread('..\\test_images\\2-light.jpg',cv2.IMREAD_GRAYSCALE)
 # img = cv2.imread('..\\test_images\\1-dark.jpg',cv2.IMREAD_GRAYSCALE)
 # img = cv2.imread('..\\test_images\\1-light.jpg',cv2.IMREAD_GRAYSCALE)
-img = cv2.imread('..\\test_images\\1-peloton-finishlynx.jpg',cv2.IMREAD_GRAYSCALE)
+img = cv2.imread('test_images\\1-peloton-finishlynx.jpg',cv2.IMREAD_GRAYSCALE)
 # img = cv2.imread('..\\test_images\\2-peloton-finishlynx.jpg',cv2.IMREAD_GRAYSCALE)
 
 origimg = img
@@ -106,7 +107,7 @@ for cnt in contours:
     
 ##Näyttää greyscale kuvan johon on piirretty ääriviivat ja kirjoitettu kuvioiden nimet  
 
-th2 = cv2.adaptiveThreshold(img,255, cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,15,-2)
+
 th2 = resize_keep_aspect(th2)
 cv2.imshow('origimg', origimg)
 cv2.imshow("th2", th2)
