@@ -8,13 +8,14 @@ from PIL import Image
 import cv2
 import os
 import tempfile
-
+#Make paths work on Linux/Windows
+from pathlib import Path
 
 #Camera emulation
 # Set environment variable PYLON_CAMEMU = x , (x = number of emulated cameras)
 # OR use the os function below
 # enable emulation 
-# os.environ["PYLON_CAMEMU"] = "1"
+os.environ["PYLON_CAMEMU"] = "1"
 
 
 
@@ -27,8 +28,16 @@ import tempfile
 # test_pattern = np.array(Image.open("..\\test_images\\1-peloton-finishlynx.jpg"))
 # test_pattern = np.fromfunction(cv2.imread("..\\test_images\\1-peloton-finishlynx.jpg"))
 # test_pattern = np.fromfunction(lambda i, j, k: j % 256, (height, width,3 ), dtype=np.int16)
-test_pattern = np.array(Image.open("..\\test_images\\1-peloton-finishlynx-shorter.png"))
 
+#Pathlib used:
+path = Path("test_images") / str("1-peloton-finishlynx-shorter.png")
+
+
+file_pattern = "pattern_" + '%05d' + ".png"
+
+print(file_pattern)
+
+test_pattern = np.array(Image.open(path))
 
 # Check image height
 height = int(test_pattern.shape[0])
@@ -38,18 +47,20 @@ width = int(test_pattern.shape[1])
 print(width)
 # width = 1920
 
+#set framerate
+framerate = 1000
+
+
 #"AOI" width, set to 2 or 4 for accurate capture when using a camera at AOI of **** x 2px
 #
 
-AOI_h = height
-AOI_w = 100
+emu_AOI_h = height
+emu_AOI_w = 2
 
-series_width = AOI_w
+series_width = emu_AOI_w
 
 #height from, because 1-peloton-finishlynx.jpg
 # height = 1008
-
-
 
 #number of frames: to have whole image, set this to the width of image
 series_length = width
@@ -65,32 +76,38 @@ test_pattern[:,:,1]
 # img_dir = tempfile.mkdtemp()
 # img_dir = tempfile.SpooledTemporaryFile()
 
-img_dir = "..\\test_roll\\"
+img_dir = "test_roll"
 
 
 #Path of first generated image for checking pre-existing images with exists()
-path = os.path.join(img_dir,"pattern_000.png")
-print(path)
+path = os.path.join(img_dir,file_pattern)
+print(path%0)
 
 def exists(path):
     "Check if path (image) exists"
     try:
-        st = os.stat(path)
+        print(path%0)
+        st = os.stat(path%0)
     except os.error:
         return False
+    print("Image roll already exists in" + path%0)
     return True
 
 
 def create_pattern():
-    "create 600 images with numpy roll"
+    
     if exists(path):
         return
     else:
+        print(file_pattern)
+        print("creating " + str(series_length) +  " images with numpy roll")
         for i in range(series_length):
             pattern = np.roll(test_pattern,i,axis=1)
             pattern = pattern[0:0+height, -series_width:width]
             pattern = cv2.cvtColor(pattern, cv2.COLOR_RGB2BGR)
-            cv2.imwrite(os.path.join(img_dir,"pattern_%05d.png"%i), pattern)
+            print(os.path.join(img_dir,file_pattern%i))
+            cv2.imwrite(os.path.join(img_dir,file_pattern%i), pattern)
+            
             # write in to memory??
             # cv2.imwrite("pattern_%03d.png"%i, pattern)
 
@@ -111,6 +128,10 @@ cam.Open()
 
 cam.ImageFilename = img_dir
 
+#Camera framerate to 1000fps (probably cannot run at it without loading images to RAM)
+cam.AcquisitionFrameRateEnable.SetValue(True)
+
+cam.AcquisitionFrameRateAbs.SetValue(framerate)
 
 # enable image file test pattern
 cam.ImageFileMode = "On"
