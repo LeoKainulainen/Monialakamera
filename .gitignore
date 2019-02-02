@@ -3,4 +3,6 @@ LinescanEmulation/.vscode/settings.json
 
 !test_roll/
 test_roll/*
-Tools.md
+!Tools.md
+LinescanDetect/output_tools_win.py
+LinescanDetect/test.py

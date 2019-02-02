@@ -1,33 +1,9 @@
 import cv2
 import numpy as np
 import math
-import ctypes
 
-
-
-
-
-
-#kuvan skaalaus näytön kokoon
-
-#näytön resoluutio
-user32 = ctypes.windll.user32
-#windows only screen res
-screensize = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
-print(screensize)
-screenwidth = screensize[0]
-print (screenwidth)
-
-def resize_keep_aspect(resize_image):
-    print("resizing")
-    TARGET_PIXEL_AREA = 100000.0
-
-    ratio = float(resize_image.shape[0]) / float(resize_image.shape[1])
-    new_w = screenwidth - 20
-    new_h = int((new_w * ratio) + 0.5)
-    resize_image = cv2.resize(resize_image, (new_w,new_h))
-    # cv2.imshow('image', resize_image)
-    return resize_image
+#Resize etc for Windows
+import output_tools_win
 
 ##Opencv lukee kuvan ja muuntaa sen grayscaleksi
 # img = cv2.imread('..\\test_images\\2-dark.jpg',cv2.IMREAD_GRAYSCALE)
