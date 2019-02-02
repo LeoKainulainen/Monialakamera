@@ -8,12 +8,12 @@ Basler Pylon & IDS uEye
     FPS
 
 Greenshot
-VSCode
-    python environment
+VSCode*
+    python environment*
             debug
-    Git
-        branch
-        diff
+    Git*
+        branch*
+        diff*
         stage & commit
 
 

@@ -1,4 +1,4 @@
-.vscode/settings.json
+.vscode/*
 LinescanEmulation/.vscode/settings.json
 
 !test_roll/
