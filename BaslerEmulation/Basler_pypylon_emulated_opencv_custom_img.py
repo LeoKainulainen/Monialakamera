@@ -33,6 +33,7 @@ os.environ["PYLON_CAMEMU"] = "1"
 path = Path("test_images") / str("1-peloton-finishlynx-shorter.png")
 
 
+
 file_pattern = "pattern_" + '%05d' + ".png"
 
 print(file_pattern)
@@ -55,6 +56,8 @@ framerate = 1000
 #
 
 emu_AOI_h = height
+# 2px for IDS Camera & automatic detection
+# 1px for getting same picture from test input picture (finishlynx-short,-shorter...) 
 emu_AOI_w = 2
 
 series_width = emu_AOI_w
@@ -140,9 +143,9 @@ cam.ImageFileMode = "On"
 cam.TestImageSelector = "Off"
 
 # choose one pixel format. camera emulation does conversion on the fly
-cam.PixelFormat = "Mono8"
-# cam.PixelFormat = "RGB"
-
+# cam.PixelFormat = "Mono8"
+cam.PixelFormat = "RGB8Packed"
+# cam.PixelFormat = "RGB8"
 
 cam.StartGrabbing()
 
