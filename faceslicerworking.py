@@ -1,13 +1,19 @@
 from PIL import Image
 import numpy as np
-from PIL.ExifTags import TAGS
+import cv2
+#from PIL.ExifTags import TAGS
 
-from datetime import datetime
+#from datetime import datetime
+
+from pathlib import Path
+
 
 
 def splice_image ():
+    path1 = Path("test_images") / str("1-peloton-finishlynx-shorter.png")
     ###avaa kuvan 
-    im = Image.open("face.png")
+    im = Image.open(path1)
+    im = cv2.cvtColor(cv2.UMat(imgUMat), cv2.COLOR_BGR2GRAY)
     ###tekee sen bittikartasta numpy arraylistan
     data = np.array(im)
 

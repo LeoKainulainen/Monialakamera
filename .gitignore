@@ -1,6 +1,9 @@
 .vscode/*
 LinescanEmulation/.vscode/settings.json
 
+!faces/
+faces/*
+
 !test_roll/
 test_roll/*
 !Tools.md
