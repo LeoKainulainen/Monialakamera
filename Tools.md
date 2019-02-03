@@ -21,6 +21,11 @@ Basler Pylon & IDS uEye
     FPS
         IDS?
 
+UI
+    wxPython
+    wxGlade
+
+
 Greenshot
 VSCode*
     python environment*

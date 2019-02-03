@@ -7,10 +7,15 @@ import cv2
 
 from pathlib import Path
 
+import os
 
+path1 = Path("test_images") / str("1-peloton-finishlynx-shorter.png")
+
+#luo kansion
+if not os.path.exists(dir):
+   os.makedirs(dir)
 
 def splice_image ():
-    path1 = Path("test_images") / str("1-peloton-finishlynx-shorter.png")
     ###avaa kuvan 
     im = Image.open(path1)
     im = cv2.cvtColor(cv2.UMat(imgUMat), cv2.COLOR_BGR2GRAY)
@@ -28,24 +33,10 @@ def splice_image ():
            imgfrom.save(path)
            pathcounter = pathcounter + 1
 
-###Tämä jatkuu myöhemmin
-#def give_timestamps ():
-
-    
-    
-
+def give_timestamps ():
+    #pass = ohita koko funktio
+    pass
 
 
 
 splice_image()
-
-
-
-
-
-
-
-
-
-
-

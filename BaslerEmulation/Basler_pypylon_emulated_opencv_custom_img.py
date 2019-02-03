@@ -30,7 +30,7 @@ os.environ["PYLON_CAMEMU"] = "1"
 # test_pattern = np.fromfunction(lambda i, j, k: j % 256, (height, width,3 ), dtype=np.int16)
 
 #Pathlib used:
-path = Path("test_images") / str("1-peloton-finishlynx-shorter.png")
+path = Path("test_images") / "1-peloton-finishlynx-shorter.png")
 
 
 
@@ -79,7 +79,12 @@ test_pattern[:,:,1]
 # img_dir = tempfile.mkdtemp()
 # img_dir = tempfile.SpooledTemporaryFile()
 
+
+#create dir
 img_dir = "test_roll"
+
+if not os.path.exists(img_dir):
+        os.makedirs(img_dir)
 
 
 #Path of first generated image for checking pre-existing images with exists()
@@ -108,6 +113,7 @@ def create_pattern():
             pattern = np.roll(test_pattern,i,axis=1)
             pattern = pattern[0:0+height, -series_width:width]
             pattern = cv2.cvtColor(pattern, cv2.COLOR_RGB2BGR)
+            pattern = cv2.rotate(pattern, cv2.ROTATE_90_CLOCKWISE)
             print(os.path.join(img_dir,file_pattern%i))
             cv2.imwrite(os.path.join(img_dir,file_pattern%i), pattern)
             
@@ -192,7 +198,7 @@ while cam.IsGrabbing():
 
         frame = cv2.resize(frame,(0,0),fx=0.5, fy=0.5)
         
-        frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+        
 
         cv2.imshow('press esc', frame)
         k = cv2.waitKey(1)
