@@ -21,10 +21,18 @@ Basler Pylon & IDS uEye
     FPS
         IDS?
 
-UI
-    wxPython
-    wxGlade
-
+Python
+    UI
+        wxPython
+        wxGlade
+    Feature Recognition
+        ORB
+        Harris
+        SIFT
+        SURF    
+        YOLOv3
+    
+        
 
 Greenshot
 VSCode*
@@ -37,5 +45,9 @@ VSCode*
 
 
 Resources
+    Crop
+        https://stackoverflow.com/a/16823104/5776626
     Slicing
         https://stackoverflow.com/questions/509211/understanding-slice-notation
+    Imaginghub
+        https://imaginghub.com/blog/20-object-recognition-in-augmented-reality-using-aruco-framework

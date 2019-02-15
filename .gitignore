@@ -1,4 +1,7 @@
-.vscode/*
+*.pyc
+**__pycache__/
+**.vscode/
+
 LinescanEmulation/.vscode/settings.json
 
 !faces/
@@ -9,3 +12,4 @@ test_roll/*
 !Tools.md
 LinescanDetect/output_tools_win.py
 LinescanDetect/test.py
+

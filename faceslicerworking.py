@@ -9,7 +9,9 @@ from pathlib import Path
 
 import os
 
-path1 = Path("test_images") / str("1-peloton-finishlynx-shorter.png")
+path1 = Path("test_images") / "1-peloton-finishlynx-shorter.png"
+
+dir = "faces"
 
 #luo kansion
 if not os.path.exists(dir):
@@ -18,13 +20,18 @@ if not os.path.exists(dir):
 def splice_image ():
     ###avaa kuvan 
     im = Image.open(path1)
-    im = cv2.cvtColor(cv2.UMat(imgUMat), cv2.COLOR_BGR2GRAY)
+    # im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     ###tekee sen bittikartasta numpy arraylistan
     data = np.array(im)
+    data = cv2.cvtColor(data, cv2.COLOR_BGR2GRAY)
 
 
     pathcounter = 1 
     ###Käy läpi kuvan pikselirivi kerrallaan
+
+    ##Transpose, eli sarakkeet riveiksi
+    data = data.reshape((-1, 1)) 
+
     for row in data:
 
            ###HUOM TALLENTAA TIETOKONEELLE NIIN MOINTA KUVAA KUIN PIKSELIRIVEJÄ ON KUVASSA!!!

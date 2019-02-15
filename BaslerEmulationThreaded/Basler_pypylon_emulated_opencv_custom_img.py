@@ -11,6 +11,11 @@ import tempfile
 #Make paths work on Linux/Windows
 from pathlib import Path
 
+from EmuCVFunc import EmuCVFunc
+
+#Multithreading
+from threading import Thread
+
 #Camera emulation
 # Set environment variable PYLON_CAMEMU = x , (x = number of emulated cameras)
 # OR use the os function below
@@ -18,11 +23,7 @@ from pathlib import Path
 os.environ["PYLON_CAMEMU"] = "1"
 
 
-
-
 #jpg to numpy testing
-#
-# here..
 # test_pattern = "..\\test_images\\1-peloton-finishlynx.jpg"
 # test_pattern = cv2.imread("..\\test_images\\1-peloton-finishlynx.jpg")
 # test_pattern = np.array(Image.open("..\\test_images\\1-peloton-finishlynx.jpg"))
@@ -32,21 +33,23 @@ os.environ["PYLON_CAMEMU"] = "1"
 #Pathlib used:
 path = Path("test_images") / "1-peloton-finishlynx-shorter.png"
 
+#create dir
+img_dir = "test_roll"
+if not os.path.exists(img_dir):
+        os.makedirs(img_dir)
 
-
+#Create file pattern for saving to folder
 file_pattern = "pattern_" + '%05d' + ".png"
 
-print(file_pattern)
+print(img_dir, file_pattern)
 
 test_pattern = np.array(Image.open(path))
 
 # Check image height
 height = int(test_pattern.shape[0])
-print(height)
 # Check image width
 width = int(test_pattern.shape[1])
-print(width)
-# width = 1920
+print(height, width)
 
 #set framerate
 framerate = 1000
@@ -54,83 +57,41 @@ framerate = 1000
 
 #"AOI" width, set to 2 or 4 for accurate capture when using a camera at AOI of **** x 2px
 #
-
+# Set to 50px for "demoing" effect
+#
 emu_AOI_h = height
 # 2px for IDS Camera & automatic detection
 # 1px for getting same picture from test input picture (finishlynx-short,-shorter...) 
 emu_AOI_w = 50
 
 series_width = emu_AOI_w
-
-#height from, because 1-peloton-finishlynx.jpg
-# height = 1008
-
 #number of frames: to have whole image, set this to the width of image
 series_length = width
 
 
-test_pattern[:,:,1]
-
-# print("testi array")
-# print(test_pattern[0,:])
+# test_pattern[:,:,1]
 
 # Load to memory here...?
 #
 # img_dir = tempfile.mkdtemp()
 # img_dir = tempfile.SpooledTemporaryFile()
+#
+#
+#
 
 
-#create dir
-img_dir = "test_roll"
-
-if not os.path.exists(img_dir):
-        os.makedirs(img_dir)
 
 
 #Path of first generated image for checking pre-existing images with exists()
 path = os.path.join(img_dir,file_pattern)
 print(path%0)
 
-def exists(path):
-    "Check if path (image) exists"
-    try:
-        print(path%0)
-        st = os.stat(path%0)
-    except os.error:
-        return False
-    print("Image roll already exists in" + path%0)
-    return True
 
+CVFunc(test_pattern, file_pattern, series_length, series_width, width, height, path, img_dir).create_pattern()
 
-def create_pattern():
-    
-    if exists(path):
-        return
-    else:
-        print(file_pattern)
-        print("creating " + str(series_length) +  " images with numpy roll")
-        for i in range(series_length):
-            pattern = np.roll(test_pattern,i,axis=1)
-            pattern = pattern[0:0+height, -series_width:width]
-            pattern = cv2.cvtColor(pattern, cv2.COLOR_RGB2BGR)
-            pattern = cv2.rotate(pattern, cv2.ROTATE_90_CLOCKWISE)
-            print(os.path.join(img_dir,file_pattern%i))
-            cv2.imwrite(os.path.join(img_dir,file_pattern%i), pattern)
-            
-            # write in to memory??
-            # cv2.imwrite("pattern_%03d.png"%i, pattern)
-
-# testing video creation in opecv
-def create_video():
-    writer = cv2.VideoWriter("output.avi",cv2.VideoWriter_fourcc(*"MJPG"), 500,(width,height))
-    for i in range(1000):
-        pattern = np.roll(test_pattern,i,axis=1)
-        pattern = cv2.cvtColor(pattern, cv2.COLOR_RGB2BGR)
-        writer.write(np.random.randint(0, 255, (width,height,3)).astype('uint8'))
-        
-
-create_pattern()
-# create_video()
+# Video testing here
+create_video()
+    pass
 
 cam = py.InstantCamera(py.TlFactory.GetInstance().CreateFirstDevice())
 cam.Open()
@@ -139,19 +100,15 @@ cam.ImageFilename = img_dir
 
 #Camera framerate to 1000fps (probably cannot run at it without loading images to RAM)
 cam.AcquisitionFrameRateEnable.SetValue(True)
-
 cam.AcquisitionFrameRateAbs.SetValue(framerate)
 
 # enable image file test pattern
 cam.ImageFileMode = "On"
-
 # disable testpattern [ image file is "real-image"]
 cam.TestImageSelector = "Off"
-
 # choose one pixel format. camera emulation does conversion on the fly
 # cam.PixelFormat = "Mono8"
 cam.PixelFormat = "RGB8Packed"
-# cam.PixelFormat = "RGB8"
 
 cam.StartGrabbing()
 
