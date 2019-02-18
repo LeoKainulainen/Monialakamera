@@ -120,6 +120,8 @@ def create_pattern():
             # write in to memory??
             # cv2.imwrite("pattern_%03d.png"%i, pattern)
 
+
+
 # testing video creation in opecv
 def create_video():
     writer = cv2.VideoWriter("output.avi",cv2.VideoWriter_fourcc(*"MJPG"), 500,(width,height))
@@ -129,7 +131,10 @@ def create_video():
         writer.write(np.random.randint(0, 255, (width,height,3)).astype('uint8'))
         
 
+import time
+start_time = time.time()
 create_pattern()
+print("--- %s seconds ---" % (time.time() - start_time))
 # create_video()
 
 cam = py.InstantCamera(py.TlFactory.GetInstance().CreateFirstDevice())

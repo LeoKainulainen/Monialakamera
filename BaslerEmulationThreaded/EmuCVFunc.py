@@ -2,7 +2,11 @@ import numpy as np
 import cv2
 import os
 
-class EmuCVFunc:
+#Multithreading
+from joblib import Parallel, delayed
+import multiprocessing
+
+class EmuCVFuncParallel:
     def __init__(self, test_pattern, file_pattern, series_length, series_width, width, height, path, img_dir):
         self.test_pattern = test_pattern
         self.file_pattern = file_pattern
@@ -27,13 +31,19 @@ class EmuCVFunc:
         else:
             print(self.file_pattern)
             print("creating " + str(self.series_length) +  " images with numpy roll")
-            for i in range(self.series_length):
+            num_cores = multiprocessing.cpu_count()
+            print(num_cores)
+            inputs = range(self.series_length)
+            def processInput(i):
                 pattern = np.roll(self.test_pattern,i,axis=1)
                 pattern = pattern[0:0+self.height, -self.series_width:self.width]
                 pattern = cv2.cvtColor(pattern, cv2.COLOR_RGB2BGR)
                 pattern = cv2.rotate(pattern, cv2.ROTATE_90_CLOCKWISE)
                 print(os.path.join(self.img_dir,self.file_pattern%i))
                 cv2.imwrite(os.path.join(self.img_dir,self.file_pattern%i), pattern)
+
+            #parallellization
+            Parallel(n_jobs=num_cores)(delayed(processInput)(i) for i in inputs)
                 
                 # write in to memory??
                 # cv2.imwrite("pattern_%03d.png"%i, pattern)

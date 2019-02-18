@@ -11,10 +11,7 @@ import tempfile
 #Make paths work on Linux/Windows
 from pathlib import Path
 
-from EmuCVFunc import EmuCVFunc
-
-#Multithreading
-from threading import Thread
+from EmuCVFunc import EmuCVFuncParallel
 
 #Camera emulation
 # Set environment variable PYLON_CAMEMU = x , (x = number of emulated cameras)
@@ -86,12 +83,12 @@ series_length = width
 path = os.path.join(img_dir,file_pattern)
 print(path%0)
 
-
-CVFunc(test_pattern, file_pattern, series_length, series_width, width, height, path, img_dir).create_pattern()
-
+import time
+start_time = time.time()
+EmuCVFuncParallel(test_pattern, file_pattern, series_length, series_width, width, height, path, img_dir).create_pattern()
+print("--- %s seconds ---" % (time.time() - start_time))
 # Video testing here
-create_video()
-    pass
+#reate_video()
 
 cam = py.InstantCamera(py.TlFactory.GetInstance().CreateFirstDevice())
 cam.Open()
