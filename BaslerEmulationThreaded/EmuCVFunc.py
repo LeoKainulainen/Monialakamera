@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import os
 
-#Multithreading
+#Parallelization & Multithreading
 from joblib import Parallel, delayed
 import multiprocessing
 
@@ -34,13 +34,37 @@ class EmuCVFuncParallel:
             num_cores = multiprocessing.cpu_count()
             print(num_cores)
             inputs = range(self.series_length)
+            import time
             def processInput(i):
+                
+                # start_time = time.time()
                 pattern = np.roll(self.test_pattern,i,axis=1)
+                # print("--- roll for --- %s seconds ---" % (time.time() - start_time))
+                
+                # start_time = time.time()
                 pattern = pattern[0:0+self.height, -self.series_width:self.width]
+                # print("--- slicing for --- %s seconds ---" % (time.time() - start_time))
+
+                # start_time = time.time()
+                # cut = [self.width-1-i,self.width-i]
+                # pattern = self.test_pattern[0:0+self.height, cut[0]:cut[1]]
+                # print("--- slicing for --- %s seconds ---" % (time.time() - start_time))
+
+                # start_time = time.time()
+                # pattern = cv2.UMat(pattern)
+                # print("--- imgUMat --- %s seconds ---" % (time.time() - start_time))
+                
+                # start_time = time.time()
                 pattern = cv2.cvtColor(pattern, cv2.COLOR_RGB2BGR)
+                # print("--- color for --- %s seconds ---" % (time.time() - start_time))
+                
+                
                 pattern = cv2.rotate(pattern, cv2.ROTATE_90_CLOCKWISE)
-                print(os.path.join(self.img_dir,self.file_pattern%i))
+                
+                start_time = time.time()
+                # print(os.path.join(self.img_dir,self.file_pattern%i))
                 cv2.imwrite(os.path.join(self.img_dir,self.file_pattern%i), pattern)
+                # print("--- imwrite for --- %s seconds ---" % (time.time() - start_time))
 
             #parallellization
             Parallel(n_jobs=num_cores)(delayed(processInput)(i) for i in inputs)
