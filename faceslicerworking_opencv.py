@@ -54,7 +54,7 @@ def splice_image ():
             cut = [width-1-c,width-c]
             pattern = im
             pattern = pattern[0:0+height, cut[0]:cut[1]]
-            #print("cutting " + str(cut[0]) + " by " + str(cut[1]) + " section")
+            print("cutting " + str(cut[0]) + " by " + str(cut[1]) + " section")
             pattern = cv2.cvtColor(pattern, cv2.COLOR_RGB2BGR)
             #print(os.path.join(img_dir,file_pattern%c))
             cv2.imwrite(os.path.join(img_dir,file_pattern%c), pattern)

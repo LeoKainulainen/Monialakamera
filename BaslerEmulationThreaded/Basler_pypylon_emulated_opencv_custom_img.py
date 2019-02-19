@@ -150,7 +150,12 @@ while cam.IsGrabbing():
 
         cv2.line(frame,(0,cv2height),(cv2width,cv2height),(255,0,0),5)
 
-        frame = cv2.resize(frame,(0,0),fx=0.5, fy=0.5)
+        
+        if frame.shape[0] == 1:
+            print(frame.shape[1], "resized to", frame.shape[1]/2)
+            frame = cv2.resize(frame,(int(frame.shape[1]/2),1))
+        else:
+            frame = cv2.resize(frame,(0,0), fx=0.5, fy=0.5)
         
         
 
