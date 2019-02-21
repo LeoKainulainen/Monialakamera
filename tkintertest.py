@@ -1,4 +1,4 @@
-# import os
+import os
 from pathlib import Path
 from datetime import datetime, timedelta
 from tkinter import *
@@ -6,21 +6,26 @@ from PIL import Image, ImageTk
 
 root = Tk()
 root.title('Face')
-T = Text(root, height=1, width=30)
+T = Text(root, height=1, width=40)
 
 img_path1 = Path("test_images") / "1-light.jpg"
+img_dir = Path("faces_out")
 im = Image.open(img_path1)
 im = im.resize((1000, 483), Image.ANTIALIAS)
 pic = ImageTk.PhotoImage(im)
 stamp_list = []
+with open(os.path.join(Path(img_dir), "time_stamps.txt"), "r") as fileR:
+    print(fileR)
+    stamp_list = eval(fileR.readline())
 
 def create_stamps(stamp_list_in):
     x, y = im.size
+    print(x)
     date = datetime.now()
 
     for i in range(x):
-        date_combo = date + timedelta(seconds=i)
-        time_stamp = date_combo.strftime('%M:%S')
+        date_combo = date + timedelta(milliseconds=i)
+        time_stamp = date_combo.strftime('%H:%M:%S.%f')[:-2]
         stamp_list_in.append(time_stamp)
 
 canvas = Canvas(root, width=pic.width(), height=pic.height())
@@ -48,5 +53,5 @@ T.pack()
 B.pack()
 canvas.pack()
 
-create_stamps(stamp_list)
+# create_stamps(stamp_list)
 root.mainloop()
