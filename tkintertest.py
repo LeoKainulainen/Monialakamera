@@ -8,7 +8,7 @@ root = Tk()
 root.title('Face')
 T = Text(root, height=1, width=30)
 
-img_path1 = Path("test_images") / "1-peloton-finishlynx.png"
+img_path1 = Path("test_images") / "1-light.png"
 im = Image.open(img_path1)
 im = im.resize((1000, 483), Image.ANTIALIAS) 
 pic = ImageTk.PhotoImage(im)
