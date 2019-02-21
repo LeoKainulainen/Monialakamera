@@ -10,14 +10,17 @@ from PIL import Image
 
 linesource = Path("faces")
 
+prefix = "pattern_"
+file_pattern = prefix + '%05d' + ".png"
+
 list_im = []
 
 # Käy kaikki tiedostot jota on kansiossa jossa pythonia ajetaan
 # Tämä python tiedosto pitää laittaa kansioon (faces)
 # jossa on ainoastaan ne "halkaistut" kuvat.
 
-for file in os.listdir("."):
-    if file.startswith("slice"):
+for file in os.listdir(linesource):
+    if file.startswith(prefix):
         print("ignoring unrelated files")
     else:
         # tekee kuvista listan
