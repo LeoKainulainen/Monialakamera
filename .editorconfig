@@ -1,0 +1,6 @@
+root = true
+[*.py]
+indent_size = 4
+indent_style = space
+#TabSanity plugin
+tabSize = 4

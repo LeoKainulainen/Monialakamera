@@ -1,37 +1,36 @@
 '''
-Test program for creating & emulating Linescan of specified framewdith (AOI) with Basler python wrapper API
+Test program for creating & emulating Linescan of specified framewdith (AOI)
+with Basler python wrapper API
 '''
+import os
+# Make paths work on Linux/Windows
+from pathlib import Path
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from pypylon import pylon as py
+
 from PIL import Image
 import cv2
-import os
-import tempfile
-#Make paths work on Linux/Windows
-from pathlib import Path
+# import tempfile
 
-#Camera emulation
+
+# Camera emulation
 # Set environment variable PYLON_CAMEMU = x , (x = number of emulated cameras)
 # OR use the os function below
-# enable emulation 
+# enable emulation
 os.environ["PYLON_CAMEMU"] = "1"
 
 
-
-
-#jpg to numpy testing
+# jpg to numpy testing
 #
 # here..
-# test_pattern = "..\\test_images\\1-peloton-finishlynx.jpg"
-# test_pattern = cv2.imread("..\\test_images\\1-peloton-finishlynx.jpg")
-# test_pattern = np.array(Image.open("..\\test_images\\1-peloton-finishlynx.jpg"))
-# test_pattern = np.fromfunction(cv2.imread("..\\test_images\\1-peloton-finishlynx.jpg"))
-# test_pattern = np.fromfunction(lambda i, j, k: j % 256, (height, width,3 ), dtype=np.int16)
+# test_pattern = ""
+# test_pattern = cv2.imread("")
+# test_pattern = np.array(Image.open(""))
+# test_pattern = np.fromfunction(cv2.imread(""))
 
-#Pathlib used:
+# Pathlib used:
 path = Path("test_images") / "1-peloton-finishlynx-shorter.png"
-
 
 
 file_pattern = "pattern_" + '%05d' + ".png"
@@ -48,28 +47,30 @@ width = int(test_pattern.shape[1])
 print(width)
 # width = 1920
 
-#set framerate
+# set framerate
 framerate = 1000
 
 
-#"AOI" width, set to 2 or 4 for accurate capture when using a camera at AOI of **** x 2px
+# "AOI" width,
+# set to 2 or 4 for accurate capture when using a camera at AOI of **** x 2px
 #
 
 emu_AOI_h = height
 # 2px for IDS Camera & automatic detection
-# 1px for getting same picture from test input picture (finishlynx-short,-shorter...) 
+# 1px for getting same picture from test input picture
+# (finishlynx-short,-shorter...)
 emu_AOI_w = 50
 
 series_width = emu_AOI_w
 
-#height from, because 1-peloton-finishlynx.jpg
+# height from, because 1-peloton-finishlynx.jpg
 # height = 1008
 
-#number of frames: to have whole image, set this to the width of image
+# number of frames: to have whole image, set this to the width of image
 series_length = width
 
 
-test_pattern[:,:,1]
+# test_pattern[:,:,1]
 
 # print("testi array")
 # print(test_pattern[0,:])
@@ -80,43 +81,43 @@ test_pattern[:,:,1]
 # img_dir = tempfile.SpooledTemporaryFile()
 
 
-#create dir
+# create dir
 img_dir = "test_roll"
 
 if not os.path.exists(img_dir):
-        os.makedirs(img_dir)
+    os.makedirs(img_dir)
 
 
-#Path of first generated image for checking pre-existing images with exists()
-path = os.path.join(img_dir,file_pattern)
+# Path of first generated image for checking pre-existing images with exists()
+path = os.path.join(img_dir, file_pattern)
 print(path%0)
 
-def exists(path):
+def exists(path_in):
     "Check if path (image) exists"
     try:
-        print(path%0)
-        st = os.stat(path%0)
+        print(path_in % 0)
+        os.stat(path_in % 0)
     except os.error:
         return False
-    print("Image roll already exists in" + path%0)
+    print("Image roll already exists in" + path_in % 0)
     return True
 
 
 def create_pattern():
-    
+
     if exists(path):
         return
     else:
         print(file_pattern)
         print("creating " + str(series_length) +  " images with numpy roll")
         for i in range(series_length):
-            pattern = np.roll(test_pattern,i,axis=1)
+            pattern = np.roll(test_pattern, i, axis=1)
             pattern = pattern[0:0+height, -series_width:width]
             pattern = cv2.cvtColor(pattern, cv2.COLOR_RGB2BGR)
             pattern = cv2.rotate(pattern, cv2.ROTATE_90_CLOCKWISE)
-            print(os.path.join(img_dir,file_pattern%i))
-            cv2.imwrite(os.path.join(img_dir,file_pattern%i), pattern)
-            
+            print(os.path.join(img_dir, file_pattern%i))
+            cv2.imwrite(os.path.join(img_dir, file_pattern%i), pattern)
+
             # write in to memory??
             # cv2.imwrite("pattern_%03d.png"%i, pattern)
 
@@ -124,12 +125,12 @@ def create_pattern():
 
 # testing video creation in opecv
 def create_video():
-    writer = cv2.VideoWriter("output.avi",cv2.VideoWriter_fourcc(*"MJPG"), 500,(width,height))
+    writer = cv2.VideoWriter("output.avi", cv2.VideoWriter_fourcc(*"MJPG"), 500, (width, height))
     for i in range(1000):
-        pattern = np.roll(test_pattern,i,axis=1)
+        pattern = np.roll(test_pattern, i, axis=1)
         pattern = cv2.cvtColor(pattern, cv2.COLOR_RGB2BGR)
-        writer.write(np.random.randint(0, 255, (width,height,3)).astype('uint8'))
-        
+        writer.write(np.random.randint(0, 255, (width, height, 3)).astype('uint8'))
+
 
 import time
 start_time = time.time()
@@ -164,7 +165,7 @@ cam.StartGrabbing()
 #     res = cam.RetrieveResult(1000)
 #     print( res.Array[0,:])
 #     res.Release()
-    
+
 # cam.StopGrabbing()
 
 
@@ -174,7 +175,7 @@ cam.StartGrabbing()
 # camera = py.InstantCamera(py.TlFactory.GetInstance().CreateFirstDevice())
 
 # Grabing Continusely (video) with minimal delay
-# cam.StartGrabbing(py.GrabStrategy_LatestImageOnly) 
+# cam.StartGrabbing(py.GrabStrategy_LatestImageOnly)
 converter = py.ImageFormatConverter()
 
 # # converting to opencv bgr format
@@ -193,25 +194,25 @@ while cam.IsGrabbing():
         image = converter.Convert(grabResult)
         frame = image.GetArray()
 
-        cv2.rectangle(frame,(100,200),(200,300),(0,0,255),5)
+        cv2.rectangle(frame, (100, 200), (200, 300), (0, 0, 255), 5)
 
         cv2width = int(width)
         cv2height = int(height/2)
 
 
-        cv2.line(frame,(0,cv2height),(cv2width,cv2height),(255,0,0),5)
+        cv2.line(frame, (0, cv2height), (cv2width, cv2height), (255, 0, 0), 5)
 
-        frame = cv2.resize(frame,(0,0),fx=0.5, fy=0.5)
-        
-        
+        frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
+
+
 
         cv2.imshow('press esc', frame)
         k = cv2.waitKey(1)
         if k == 27:
             break
     grabResult.Release()
-    
-# Releasing the resource    
+
+# Releasing the resource
 cam.StopGrabbing()
 
 cv2.waitKey(0)
