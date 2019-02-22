@@ -3,6 +3,7 @@ splice and join an already made finish line photo
 """
 import os
 from pathlib import Path
+import time
 from datetime import datetime, timedelta
 import numpy as np
 import cv2
@@ -60,7 +61,6 @@ def splice_image():
         time_stamp = date_combo.strftime('%M:%S')
         stamp_list.append(time_stamp)
     with open(os.path.join(img_dir, 'time_stamps.txt'), "w") as file1:
-
         file1.write(str(stamp_list))
     print("Created a list of " + str(len(stamp_list)) + " timestamps")
 
@@ -85,5 +85,14 @@ def join_splices():
     imgs_comb = imgs_comb.transpose(Image.FLIP_LEFT_RIGHT)
     imgs_comb.save("faces/pattern_final.jpg")
 
+app_start_time = time.time()
+
+start_time = time.time()
 splice_image()
+print("--- splice_image() Running time --- %s seconds ---" % (time.time() - start_time))
+
+start_time = time.time()
 join_splices()
+print("--- join_splices Running time --- %s seconds ---" % (time.time() - start_time))
+
+print("--- Total Running time --- %s seconds ---" % (time.time() - app_start_time))
