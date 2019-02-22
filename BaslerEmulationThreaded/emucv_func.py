@@ -3,13 +3,12 @@ cv2 functions
 """
 import os
 import time
+# Parallelization & Multithreading
+from joblib import Parallel, delayed
 import multiprocessing
 import numpy as np
 import cv2
 
-
-# Parallelization & Multithreading
-from joblib import Parallel, delayed
 
 def exists(path):
     print(type(path),path)
@@ -81,9 +80,9 @@ class EmuCVFuncParallel:
 # cv2.imwrite("pattern_%03d.png"%i, pattern)
 
 # testing video creation in opecv
-def create_video(self):
-    writer = cv2.VideoWriter("o", cv2.VideoWriter_fourcc(*"MJPG"), 500, (self.width, self.height))
-    for i in range(1000):
-        pattern = np.roll(self.test_pattern, i, axis=1)
-        pattern = cv2.cvtColor(pattern, cv2.COLOR_RGB2BGR)
-        writer.write(np.random.randint(0, 255, (self.width, self.height, 3)).astype('uint8'))
+    def create_video(self):
+        writer = cv2.VideoWriter("o", cv2.VideoWriter_fourcc(*"MJPG"), 500, (self.width, self.height))
+        for i in range(1000):
+            pattern = np.roll(self.test_pattern, i, axis=1)
+            pattern = cv2.cvtColor(pattern, cv2.COLOR_RGB2BGR)
+            writer.write(np.random.randint(0, 255, (self.width, self.height, 3)).astype('uint8'))
