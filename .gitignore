@@ -7,9 +7,12 @@ LinescanEmulation/.vscode/settings.json
 !faces/
 faces/*
 faces_out/*
+faces_testing/*
 
 !test_roll/
 test_roll/*
+
 !Tools.md
 LinescanDetect/output_tools_win.py
 LinescanDetect/test.py
+

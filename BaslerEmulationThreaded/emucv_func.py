@@ -1,27 +1,18 @@
 """
 cv2 functions
 """
+import sys
 import os
+# make importing modules possible from parent directory...
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 import time
 # Parallelization & Multithreading
 from joblib import Parallel, delayed
 import multiprocessing
 import numpy as np
 import cv2
-
-
-def exists(path):
-    print(type(path),path)
-
-    print(type(path),path)
-    "Check if path (image) exists"
-    try:
-        print(path % 0)
-        st = os.stat(path % 0)
-    except os.error:
-        return False
-    print("Image roll already exists in" + path % 0)
-    return True
+import codereuse
 
 class EmuCVFuncParallel:
     def __init__(self, test_pattern, file_pattern, series_length, series_width, width, height, path, img_dir):
@@ -35,7 +26,7 @@ class EmuCVFuncParallel:
         self.path = path
         self.img_dir = img_dir
     def create_pattern(self):
-        if exists(self.path):
+        if codereuse.exists(self.path):
             return
         else:
             print(self.file_pattern)

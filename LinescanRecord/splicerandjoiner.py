@@ -3,12 +3,16 @@ splice and join an already made finish line photo
 """
 import sys
 import os
+# make importing modules possible from parent directory...
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 from pathlib import Path
 from datetime import datetime, timedelta
 import time
 import numpy as np
 import cv2
 from PIL import Image
+import codereuse
 
 # cwd to if needed ..\
 # os.chdir(Path('.').resolve().parents[0])
@@ -30,12 +34,7 @@ save_with_prefix = str(out_dir) + os.sep + prefix + appver + "_" + datetime.now(
 
 
 # luo kansiot
-def folderexist(*args, **kwargs):
-    for fname in args:
-        if not os.path.exists(fname):
-            os.makedirs(fname)
-
-folderexist(img_dir, out_dir)
+codereuse.folderexist(img_dir, out_dir)
 
 
 img_path1 = Path("test_images") / "1-light.jpg"

@@ -2,7 +2,11 @@
 Test program for creating & emulating Linescan of specified framewdith (AOI)
 with Basler python wrapper API
 '''
+import sys
 import os
+# make importing modules possible from parent directory...
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 from pathlib import Path
 import time
 import numpy as np
@@ -12,6 +16,7 @@ from PIL import Image
 import cv2
 # import tempfile
 # Make paths work on Linux/Windows
+import codereuse
 
 
 from emucv_func import EmuCVFuncParallel
