@@ -1,17 +1,17 @@
 """
 splice and join an already made finish line photo
 """
+from pathlib import Path
 import sys
 import os
-# make importing modules possible from parent directory...
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
-from pathlib import Path
 from datetime import datetime, timedelta
 import time
 import numpy as np
 import cv2
-from PIL import Image
+# make importing modules possible from parent directory...
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
+# from PIL import Image
 import codereuse
 
 # cwd to if needed ..\
@@ -57,21 +57,22 @@ width = int(im.shape[1])
 
 print(im.shape)
 
-print("Image width: ",width)
+print("Image width: ", width)
 def exists(path):
     print(type(path), path)
     path = str(path)
     print(type(path), path)
-    "Check if path (image) exists"
+    # "Check if path (image) exists"
     try:
         print(path % 0)
-        st = os.stat(path % 0)
+        os.stat(path % 0)
     except os.error:
         return False
     print("Image roll already exists in" + path % 0)
     return True
 
 # ##Käy läpi kuvan pikseli*sarake* kerrallaan
+# Toimisko np.hsplit nopeammin? (hstack vastakohta)
 def splice_image():
     file = Path(img_dir) / file_pattern
     if exists(file):
@@ -98,16 +99,15 @@ def splice_image():
 # Videotallennuksen testaustaa jaaaaaaaa.... ei toimi. MJPG vähimmäisleveys ~~ 4px
 
 def splice_image_to_video():
-    stamp_list = []
-    date = datetime.now()
-    writer = cv2.VideoWriter(save_with_prefix + ".avi", cv2.VideoWriter_fourcc(*"MJPG"), 5, (100, height),True)
-    for i in range(1,40):
+    # stamp_list = []
+    writer = cv2.VideoWriter(save_with_prefix + ".avi", cv2.VideoWriter_fourcc(*"MJPG"), 5, (100, height), True)
+    for i in range(1, 40):
         # print(i)
-        cut = [4000-100*i,4100-100*i]
-        print(cut[0],cut[1])
+        cut = [4000-100*i, 4100-100*i]
+        print(cut[0], cut[1])
         pattern = im
         pattern = pattern[0:0+height, cut[0]:cut[1]]
-        pattern = cv2.cvtColor(pattern%i, cv2.COLOR_RGB2BGR)
+        pattern = cv2.cvtColor(pattern, cv2.COLOR_RGB2BGR)
         # print(pattern%i)
         writer.write(pattern%i)
     writer.release()
@@ -123,18 +123,19 @@ def splice_image_to_video():
 
 def join_splices():
     list_im = []
-    start_time = time.time()
+    start_time_join = time.time()
     # faster without enumerate?
     for file, f in zip(os.listdir(img_dir), range(width)):
         if file.startswith(file_pattern%f):
             list_im.append(file)
-    
+
     # for f, file in enumerate(os.listdir(img_dir)):
     #     if file.startswith(file_pattern%f):
     #         # print(f,file)
     #         # print(file)
     #         list_im.append(file)
-    print("--- enumerating for --- %s seconds ---" % (time.time() - start_time))
+    global enumerate_run_time
+    enumerate_run_time = time.time() - start_time_join
     # print(list_im)
     # time.sleep(5)
     # raise SystemExit(0)
@@ -142,33 +143,55 @@ def join_splices():
     #     if file.startswith(prefix):
     #         print(file)
     #         list_im.append(file)
-
-    imgs = [Image.open(os.path.join(img_dir, i)) for i in list_im]
-
+    # print(list_im)
+    # imgs = [Image.open(os.path.join(img_dir, i)) for i in list_im]
+    imgs = []
+    for i in list_im:
+        img = cv2.imread(os.path.join(img_dir, i))
+        imgs.append(img)
+    # imgs = [cv2.imread(os.path.join(img_dir, i)) for i in list_im]
+    print("Type of variable", imgs[0], " is ", type(imgs[0]))
 
     # pick the image which is the smallest, and resize the others to match it
     # (can be arbitrary image shape here)
-    min_shape = sorted([(np.sum(i.size), i.size) for i in imgs])[0][1]
+    # min_shape = sorted([(np.sum(i.size), i.size) for i in imgs])[0][1]
+    # print(min_shape)
     imgs_comb_start = time.time()
-    imgs_comb = np.hstack(tuple(map(tuple, (np.asarray(i.resize(min_shape)) for i in imgs))))
-    print("--- hstack() Running time --- %s seconds ---" % (time.time() - imgs_comb_start))
+
+    # avoiding this here: https://github.com/numpy/numpy/blob/master/numpy/core/shape_base.py#L209
+    # imgs_comb = np.hstack(tuple(map(tuple, (np.asarray(i.resize(min_shape)) for i in imgs))))
+    # imgs_comb = np.hstack((np.asarray(i.resize(min_shape)) for i in imgs))
+    # imgs_comb = np.hstack((i.resize(min_shape)) for i in imgs)
+    imgs_comb = np.hstack(imgs)
+    # imgs_comb = np.hstack(tuple(map(tuple, (i for i in imgs))))
+    global imgs_comb_run_time
+    imgs_comb_run_time = (time.time() - imgs_comb_start)
 
     #tuple to array..
-    print(type(imgs_comb))
-    imgs_comb = np.asarray(imgs_comb)
-    imgs_comb = Image.fromarray(imgs_comb)
-    imgs_comb = imgs_comb.transpose(Image.FLIP_LEFT_RIGHT)
-    imgs_comb.save(save_with_prefix + ".jpg")
+    # print(type(imgs_comb), imgs_comb[0])
+    # imgs_comb = np.asarray(imgs_comb)
+    # imgs_Comb = cv2.UMat(imgs_comb)
+    imgs_comb = cv2.flip(imgs_comb, +1)
+    cv2.imwrite(save_with_prefix + ".jpg", cv2.cvtColor(imgs_comb, cv2.COLOR_RGB2BGR))
+    # imgs_comb = Image.fromarray(imgs_comb)
+    # imgs_comb = imgs_comb.transpose(Image.FLIP_LEFT_RIGHT)
+
+    # imgs_comb.save(save_with_prefix + ".jpg")
 app_start_time = time.time()
 
 start_time = time.time()
 splice_image()
 # splice_image_to_video()
-print("--- splice_image() Running time --- %s seconds ---" % (time.time() - start_time))
+splice_image_run_time = (time.time() - start_time)
 
 start_time = time.time()
 join_splices()
 
+print("--- splice_image() Running time --- %s seconds ---" % splice_image_run_time)
+
+print("--- enumerating for --- %s seconds ---" % enumerate_run_time)
+
+print("--- hstack() Running time --- %s seconds ---" % imgs_comb_run_time)
 
 print("--- join_splices Running time --- %s seconds ---" % (time.time() - start_time))
 
