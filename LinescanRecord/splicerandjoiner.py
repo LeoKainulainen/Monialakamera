@@ -57,25 +57,11 @@ width = int(im.shape[1])
 
 print(im.shape)
 
-print("Image width: ", width)
-def exists(path):
-    print(type(path), path)
-    path = str(path)
-    print(type(path), path)
-    # "Check if path (image) exists"
-    try:
-        print(path % 0)
-        os.stat(path % 0)
-    except os.error:
-        return False
-    print("Image roll already exists in" + path % 0)
-    return True
-
 # ##Käy läpi kuvan pikseli*sarake* kerrallaan
 # Toimisko np.hsplit nopeammin? (hstack vastakohta)
 def splice_image():
     file = Path(img_dir) / file_pattern
-    if exists(file):
+    if codereuse.pattern_exists(file):
         return
     stamp_list = []
     date = datetime.now()
