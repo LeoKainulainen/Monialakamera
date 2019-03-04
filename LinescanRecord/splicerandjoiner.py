@@ -19,7 +19,7 @@ import codereuse
 # print(os.getcwd())
 
 
-appver = "v0.01"
+appver = "v0.02"
 
 # np.set_printoptions(threshold=sys.maxsize)
 
@@ -37,7 +37,7 @@ save_with_prefix = str(out_dir) + os.sep + prefix + appver + "_" + datetime.now(
 codereuse.folderexist(img_dir, out_dir)
 
 
-img_path1 = Path("test_images") / "1-light.jpg"
+img_path1 = Path("test_images") / "2-peloton-finishlynx.jpg"
 
 print(img_path1)
 
@@ -56,7 +56,42 @@ print(height)
 width = int(im.shape[1])
 
 print(im.shape)
+def splice_image_ram():
+    file = Path(img_dir) / file_pattern
+    if codereuse.pattern_exists(str(file)):
+        return
+    stamp_list = []
+    date = datetime.now()
+    for c in range(width):
+        cut = [width-1-c, width-c]
+        pattern = im
+        pattern = pattern[0:0+height, cut[0]:cut[1]]
+        # print("cutting " + str(cut[0]) + " by " + str(cut[1]) + " section")
+        # pattern = cv2.cvtColor(pattern, cv2.COLOR_RGB2BGR)
+        # print(os.path.join(img_dir,file_pattern%c))
+        # cv2.imwrite(os.path.join(img_dir, file_pattern % c), pattern)
+        slices.append(pattern)
 
+        date_combo = date + timedelta(milliseconds=c)
+        time_stamp = date_combo.strftime('%H:%M:%S.%f')[:-2]
+        stamp_list.append(time_stamp)
+
+    with open(save_with_prefix + ".txt", "w") as file1:
+        file1.write(str(stamp_list))
+    print("Created a list of " + str(len(stamp_list)) + " timestamps")
+
+def join_splices_ram():
+    imgs_comb_start = time.time()
+
+    imgs_comb = np.hstack(slices)
+
+    global imgs_comb_run_time
+    imgs_comb_run_time = (time.time() - imgs_comb_start)
+
+    imgs_comb = cv2.flip(imgs_comb, +1)
+    imgs_comb = cv2.cvtColor(imgs_comb, cv2.COLOR_RGB2BGR)
+    cv2.imwrite(save_with_prefix + ".jpg", cv2.cvtColor(imgs_comb, cv2.COLOR_RGB2BGR))
+enumerate_run_time = None
 # ##Käy läpi kuvan pikseli*sarake* kerrallaan
 # Toimisko np.hsplit nopeammin? (hstack vastakohta)
 def splice_image():
@@ -166,12 +201,13 @@ def join_splices():
 app_start_time = time.time()
 
 start_time = time.time()
-splice_image()
+slices = list()
+splice_image_ram()
 # splice_image_to_video()
 splice_image_run_time = (time.time() - start_time)
 
 start_time = time.time()
-join_splices()
+join_splices_ram()
 
 print("--- splice_image() Running time --- %s seconds ---" % splice_image_run_time)
 
