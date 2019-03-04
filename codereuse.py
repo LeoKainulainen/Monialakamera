@@ -1,5 +1,5 @@
 """
-codereuse
+codereuse module
 """
 import os
 import time

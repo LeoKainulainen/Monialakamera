@@ -43,8 +43,9 @@ height = int(im.shape[0])
 width = int(im.shape[1])
 
 print(im.shape)
-slices = list()
+
 def splice_image_shelve():
+    slices = list()
     file = Path(img_dir) / file_pattern
     if codereuse.pattern_exists(str(file)):
         return
@@ -67,6 +68,7 @@ def splice_image_shelve():
 
         # takes way too long...
         # db_shelve[time_stamp] = pattern
+        # db_shelve[time_stamp]
 
     with open(save_with_prefix + ".txt", "w") as file1:
         file1.write(str(stamp_list))
@@ -76,7 +78,7 @@ def splice_image_shelve():
     db_shelve["slices"] = slices
     db_shelve.close()
 
-def join_splices_from_shelve():
+def join_splices_from_shelve(percent_start, percent_stop):
     # imgs_comb_start = time.time()
 
     db_shelve = shelve.open(save_shelve_name, flag='r')
@@ -90,13 +92,32 @@ def join_splices_from_shelve():
 
     imgs_comb = np.hstack(slices)
 
+    print(int(percent_start/100*len(slices)))
+    print(int(percent_stop/100*len(slices)))
+
+    slices_defined_area = slices[int(percent_start/100*len(slices)):int(percent_stop/100*len(slices))]
+
+    imgs_comb_def_area = np.hstack(slices_defined_area)
+
+
+    # itertools https://stackoverflow.com/a/8671323/5776626
+    # import itertools
+    # for line in itertools.islice(list , start, stop):
+    #     foo(line)
+
+    
+
 
     imgs_comb = cv2.flip(imgs_comb, +1)
-    imgs_comb = cv2.cvtColor(imgs_comb, cv2.COLOR_RGB2BGR)
+    # imgs_comb = cv2.cvtColor(imgs_comb, cv2.COLOR_RGB2BGR)
     cv2.imwrite(save_with_prefix + ".jpg", cv2.cvtColor(imgs_comb, cv2.COLOR_RGB2BGR))
-    composite = cv2.cvtColor(composite, cv2.COLOR_RGB2BGR)
+
+    # composite = cv2.cvtColor(composite, cv2.COLOR_RGB2BGR)
     cv2.imwrite(save_with_prefix + "_composite.jpg", cv2.cvtColor(composite, cv2.COLOR_RGB2BGR))
 
+    imgs_comb_def_area = cv2.flip(imgs_comb_def_area, +1)
+    imgs_comb_def_area = cv2.cvtColor(imgs_comb_def_area, cv2.COLOR_RGB2BGR)
+    cv2.imwrite(save_with_prefix + "_30-50.jpg", cv2.cvtColor(imgs_comb_def_area, cv2.COLOR_RGB2BGR))
 
     # save timestamps as text_file
     stamp_list = db_shelve["timestamps"]
@@ -105,11 +126,13 @@ def join_splices_from_shelve():
         file1.write(str(stamp_list))
     print("Created a list of " + str(len(stamp_list)) + " timestamps")
 
+    return imgs_comb_def_area
+
 app_start_time = time.time()
 
 date = datetime.now()
 # splice_image_shelve()
-join_splices_from_shelve()
+# join_splices_from_shelve()
 print(type(slice))
 
 print("--- Total Running time --- %s seconds ---" % (time.time() - app_start_time))
