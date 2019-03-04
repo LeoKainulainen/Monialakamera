@@ -6,7 +6,7 @@ import time
 
 # class codereuse:
 def __init__(*args):
-    self.args = args
+    args = args
 def folderexist(*args):
     print("3", args[0])
     print("tadaa", args)

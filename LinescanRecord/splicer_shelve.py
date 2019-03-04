@@ -89,8 +89,10 @@ def join_splices_from_shelve(percent_start, percent_stop):
     # print(type(composite))
 
     composite = np.hstack(slices)
+    composite = cv2.flip(composite, +1)
 
     imgs_comb = np.hstack(slices)
+    imgs_comb = cv2.flip(imgs_comb, +1)
 
     print(int(percent_start/100*len(slices)))
     print(int(percent_stop/100*len(slices)))
@@ -98,7 +100,7 @@ def join_splices_from_shelve(percent_start, percent_stop):
     slices_defined_area = slices[int(percent_start/100*len(slices)):int(percent_stop/100*len(slices))]
 
     imgs_comb_def_area = np.hstack(slices_defined_area)
-
+    imgs_comb_def_area = cv2.flip(imgs_comb_def_area, +1)
 
     # itertools https://stackoverflow.com/a/8671323/5776626
     # import itertools
@@ -108,16 +110,12 @@ def join_splices_from_shelve(percent_start, percent_stop):
     
 
 
-    imgs_comb = cv2.flip(imgs_comb, +1)
+    
     # imgs_comb = cv2.cvtColor(imgs_comb, cv2.COLOR_RGB2BGR)
-    cv2.imwrite(save_with_prefix + ".jpg", cv2.cvtColor(imgs_comb, cv2.COLOR_RGB2BGR))
+    cv2.imwrite(save_with_prefix + ".jpg", imgs_comb)
 
     # composite = cv2.cvtColor(composite, cv2.COLOR_RGB2BGR)
-    cv2.imwrite(save_with_prefix + "_composite.jpg", cv2.cvtColor(composite, cv2.COLOR_RGB2BGR))
-
-    imgs_comb_def_area = cv2.flip(imgs_comb_def_area, +1)
-    imgs_comb_def_area = cv2.cvtColor(imgs_comb_def_area, cv2.COLOR_RGB2BGR)
-    cv2.imwrite(save_with_prefix + "_30-50.jpg", cv2.cvtColor(imgs_comb_def_area, cv2.COLOR_RGB2BGR))
+    cv2.imwrite(save_with_prefix + "_composite.jpg", composite)
 
     # save timestamps as text_file
     stamp_list = db_shelve["timestamps"]
