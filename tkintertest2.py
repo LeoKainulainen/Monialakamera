@@ -4,13 +4,17 @@ from datetime import datetime, timedelta
 from pathlib import Path
 import os
 
+import codereuse
+
 root = Tk()
 root.title('Face')
 T = Text(root, height=1, width=30)
 
 img_path1 = Path("test_images") / "1-peloton-finishlynx.jpg"
 im = Image.open(img_path1)
-savedir = 'faces_testing'
+savedir = Path("faces_testing")
+
+codereuse.folderexist(savedir)
 
 def createSplits():
     
