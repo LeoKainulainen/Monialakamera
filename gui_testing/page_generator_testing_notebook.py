@@ -6,6 +6,9 @@
 #    Mar 07, 2019 11:58:58 AM EET  platform: Linux
 
 import sys
+import time
+from datetime import datetime
+from timeit import default_timer as timer
 
 try:
     import Tkinter as tk
@@ -21,83 +24,161 @@ except ImportError:
 
 import page_generator_testing_notebook_support
 
+
 def vp_start_gui():
     '''Starting point when module is the main routine.'''
     global val, w, root
     root = tk.Tk()
     page_generator_testing_notebook_support.set_Tk_var()
-    top = Toplevel1 (root)
+    top = Toplevel1(root)
     page_generator_testing_notebook_support.init(root, top)
     root.mainloop()
 
+
 w = None
+
+
 def create_Toplevel1(root, *args, **kwargs):
     '''Starting point when module is imported by another program.'''
     global w, w_win, rt
     rt = root
-    w = tk.Toplevel (root)
+    w = tk.Toplevel(root)
     page_generator_testing_notebook_support.set_Tk_var()
-    top = Toplevel1 (w)
+    top = Toplevel1(w)
     page_generator_testing_notebook_support.init(w, top, *args, **kwargs)
     return (w, top)
+
 
 def destroy_Toplevel1():
     global w
     w.destroy()
     w = None
 
+
 class Toplevel1:
+    def tick(self):
+        # get the current local time from the PC
+        time1 = time.strftime('%H:%M:%S')
+        # if time string has changed, update it
+        # clock.config(text=time2)
+        # self.CurrentTimeText2.insert(0.0, "")
+        self.CurrentTimeText2.delete(0.0,tk.END)
+        self.CurrentTimeText2.insert(0.0, time1)
+        # calls itself every 200 milliseconds
+        # to update the time display as needed
+        # could use >200 ms, but display gets jerky
+        self.CurrentTimeText2.after(200, self.tick)
+    
+    
+    global Timerstarted
+    Timerstarted = 0
+    def TimerStart(self):
+        global start
+        start = timer()
+        self.TimerText2.configure(background="blue")
+        print(start)
+        global Timerstarted
+        Timerstarted = 1
+        self.Timertick()
+        print("Timer Started", Timerstarted)
+    
+    def PauseCapture(self):
+        global start
+        start = timer()
+        print(start)
+        global Timerstarted
+        Timerstarted = 1
+        self.Timertick()
+        print("Timer Started", Timerstarted)
+
+    def TimerStop(self):
+        global Timerstarted
+        Timerstarted = 0
+        self.TimerText2.configure(background="green")
+        self.Timertick()
+        print("Timer Stopped", Timerstarted)
+
+    
+    def Timertick(self):
+        
+        # self.Timerstarted
+
+        print("Timertick", Timerstarted)
+
+        if Timerstarted == 1:
+            # get the current local time from the PC
+            
+            # time2 = datetime.now().strftime("%H:%M:%S.%f")
+            addtime = timer()
+            timer2 = addtime - start
+            hours, rem = divmod(addtime-start, 3600)
+            minutes, seconds = divmod(rem, 60)
+            timer2 = ("{:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds))
+            print(timer2)
+            # if time string has changed, update it
+            # clock.config(text=time2)
+            # self.CurrentTimeText2.insert(0.0, "")
+            self.TimerText2.delete(0.0,tk.END)
+            self.TimerText2.insert(0.0, timer2)
+            # calls itself every 200 milliseconds
+            # to update the time display as needed
+            # could use >200 ms, but display gets jerky
+            self.TimerText2.after(100, self.Timertick)
+
     def __init__(self, top=None):
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
         _fgcolor = '#000000'  # X11 color: 'black'
-        _compcolor = '#d9d9d9' # X11 color: 'gray85'
-        _ana1color = '#d9d9d9' # X11 color: 'gray85'
-        _ana2color = '#ececec' # Closest X11 color: 'gray92'
+        _compcolor = '#d9d9d9'  # X11 color: 'gray85'
+        _ana1color = '#d9d9d9'  # X11 color: 'gray85'
+        _ana2color = '#ececec'  # Closest X11 color: 'gray92'
         font14 = "-family {DejaVu Sans} -size 0"
         font9 = "-family {DejaVu Sans} -size 0"
+        fontTime = "-family {DejaVu Sans} -size 25"
+        fontTimer = "-family {DejaVu Sans} -size 20"
         self.style = ttk.Style()
         if sys.platform == "win32":
             self.style.theme_use('winnative')
-        self.style.configure('.',background=_bgcolor)
-        self.style.configure('.',foreground=_fgcolor)
-        self.style.configure('.',font="TkDefaultFont")
-        self.style.map('.',background=
-            [('selected', _compcolor), ('active',_ana2color)])
+        self.style.configure('.', background=_bgcolor)
+        self.style.configure('.', foreground=_fgcolor)
+        self.style.configure('.', font="TkDefaultFont")
+        self.style.map('.', background=[
+                       ('selected', _compcolor), ('active', _ana2color)])
 
         top.geometry("1351x695+-10+14")
         top.title("New Toplevel")
         top.configure(highlightcolor="black")
 
-        self.menubar = tk.Menu(top, font=('DejaVu Sans', 12, ), bg=_bgcolor
-                ,fg=_fgcolor)
-        top.configure(menu = self.menubar)
+        self.menubar = tk.Menu(top, font=(
+            'DejaVu Sans', 12, ), bg=_bgcolor, fg=_fgcolor)
+        top.configure(menu=self.menubar)
 
         self.style.configure('TNotebook.Tab', background=_bgcolor)
         self.style.configure('TNotebook.Tab', foreground=_fgcolor)
-        self.style.map('TNotebook.Tab', background=
-            [('selected', _compcolor), ('active',_ana2color)])
+        self.style.map('TNotebook.Tab', background=[
+                       ('selected', _compcolor), ('active', _ana2color)])
         self.TNotebook1 = ttk.Notebook(top)
-        self.TNotebook1.place(relx=0.0, rely=0.0, relheight=0.997
-                , relwidth=1.001)
+        self.TNotebook1.place(relx=0.0, rely=0.0,
+                              relheight=0.997, relwidth=1.001)
         self.TNotebook1.configure(width=1352)
         self.TNotebook1.configure(takefocus="")
         self.TNotebook1_t0 = tk.Frame(self.TNotebook1)
         self.TNotebook1.add(self.TNotebook1_t0, padding=3)
-        self.TNotebook1.tab(0, text="CameraUI",compound="left",underline="-1",)
+        self.TNotebook1.tab(0, text="CameraUI",
+                            compound="left", underline="-1",)
         self.TNotebook1_t1 = tk.Frame(self.TNotebook1)
         self.TNotebook1.add(self.TNotebook1_t1, padding=3)
-        self.TNotebook1.tab(1, text="Shelve Explorer", compound="none"
-                ,underline="-1", )
+        self.TNotebook1.tab(1, text="Shelve Explorer",
+                            compound="none", underline="-1", )
         self.TNotebook1_t2 = tk.Frame(self.TNotebook1)
         self.TNotebook1.add(self.TNotebook1_t2, padding=3)
-        self.TNotebook1.tab(2, text="IDS Settings", compound="left"
-                ,underline="-1", )
+        self.TNotebook1.tab(2, text="IDS Settings",
+                            compound="left", underline="-1", )
 
         self.StripCanvas1 = tk.Canvas(self.TNotebook1_t0)
-        self.StripCanvas1.place(relx=0.0, rely=0.299, relheight=0.643
-                , relwidth=0.808)
+        self.StripCanvas1.place(relx=0.0, rely=0.299,
+                                relheight=0.643, relwidth=0.808)
         self.StripCanvas1.configure(borderwidth="2")
         self.StripCanvas1.configure(relief='ridge')
         self.StripCanvas1.configure(selectbackground="#c4c4c4")
@@ -176,25 +257,29 @@ class Toplevel1:
         self.Button1.configure(activebackground="#f9f9f9")
         self.Button1.configure(text='''STOP TIMER''')
         self.Button1.configure(wraplength="70")
+        self.Button1.configure(command=self.TimerStop)
 
         self.Button1 = tk.Button(self.TNotebook1_t0)
         self.Button1.place(relx=0.778, rely=0.015, height=98, width=89)
         self.Button1.configure(activebackground="#f9f9f9")
         self.Button1.configure(text='''START (TIMER) (CAPTURE)''')
         self.Button1.configure(wraplength="70")
+        self.Button1.configure(command=self.TimerStart)
 
-        self.StripScrollScale1 = tk.Scale(self.TNotebook1_t0, from_=0.0, to=100.0)
-        self.StripScrollScale1.place(relx=0.007, rely=0.94, relwidth=0.799
-                , relheight=0.0, height=40, bordermode='ignore')
+        self.StripScrollScale1 = tk.Scale(
+            self.TNotebook1_t0, from_=0.0, to=100.0)
+        self.StripScrollScale1.place(
+            relx=0.007, rely=0.94, relwidth=0.799, relheight=0.0, height=40, bordermode='ignore')
         self.StripScrollScale1.configure(activebackground="#f9f9f9")
         self.StripScrollScale1.configure(font="-family {DejaVu Sans} -size 12")
         self.StripScrollScale1.configure(length="1074")
         self.StripScrollScale1.configure(orient="horizontal")
         self.StripScrollScale1.configure(troughcolor="#d9d9d9")
 
-        self.CaptureSensScale1 = tk.Scale(self.TNotebook1_t0, from_=0.0, to=100.0)
-        self.CaptureSensScale1.place(relx=0.007, rely=0.224, relwidth=0.302
-                , relheight=0.0, height=40, bordermode='ignore')
+        self.CaptureSensScale1 = tk.Scale(
+            self.TNotebook1_t0, from_=0.0, to=100.0)
+        self.CaptureSensScale1.place(
+            relx=0.007, rely=0.224, relwidth=0.302, relheight=0.0, height=40, bordermode='ignore')
         self.CaptureSensScale1.configure(activebackground="#f9f9f9")
         self.CaptureSensScale1.configure(font="-family {DejaVu Sans} -size 12")
         self.CaptureSensScale1.configure(length="404")
@@ -202,8 +287,8 @@ class Toplevel1:
         self.CaptureSensScale1.configure(troughcolor="#d9d9d9")
 
         self.BibNumText2 = tk.Text(self.TNotebook1_t0)
-        self.BibNumText2.place(relx=0.733, rely=0.239, relheight=0.054
-                , relwidth=0.079)
+        self.BibNumText2.place(relx=0.733, rely=0.239,
+                               relheight=0.054, relwidth=0.079)
         self.BibNumText2.configure(background="white")
         self.BibNumText2.configure(font=font9)
         self.BibNumText2.configure(selectbackground="#c4c4c4")
@@ -211,8 +296,8 @@ class Toplevel1:
         self.BibNumText2.configure(wrap='word')
 
         self.StripTimeText2 = tk.Text(self.TNotebook1_t0)
-        self.StripTimeText2.place(relx=0.615, rely=0.239, relheight=0.054
-                , relwidth=0.116)
+        self.StripTimeText2.place(
+            relx=0.615, rely=0.239, relheight=0.054, relwidth=0.116)
         self.StripTimeText2.configure(background="white")
         self.StripTimeText2.configure(font=font9)
         self.StripTimeText2.configure(selectbackground="#c4c4c4")
@@ -220,35 +305,40 @@ class Toplevel1:
         self.StripTimeText2.configure(wrap='word')
 
         self.TimerText2 = tk.Text(self.TNotebook1_t0)
-        self.TimerText2.place(relx=0.652, rely=0.045, relheight=0.054
-                , relwidth=0.116)
+        self.TimerText2.place(relx=0.652, rely=0.045,
+                              relheight=0.054, relwidth=0.116)
+        self.Timertick()
         self.TimerText2.configure(background="white")
-        self.TimerText2.configure(font=font9)
+        self.TimerText2.configure(foreground="white")
+        self.TimerText2.configure(font=fontTime)
         self.TimerText2.configure(selectbackground="#c4c4c4")
         self.TimerText2.configure(width=156)
         self.TimerText2.configure(wrap='word')
 
         self.CurrentTimeText2 = tk.Text(self.TNotebook1_t0)
-        self.CurrentTimeText2.place(relx=0.533, rely=0.045, relheight=0.054
-                , relwidth=0.116)
+        self.CurrentTimeText2.place(
+            relx=0.533, rely=0.045, relheight=0.054, relwidth=0.116)
+        self.tick()
         self.CurrentTimeText2.configure(background="white")
-        self.CurrentTimeText2.configure(font=font9)
+        self.CurrentTimeText2.configure(font=fontTime)
         self.CurrentTimeText2.configure(selectbackground="#c4c4c4")
         self.CurrentTimeText2.configure(width=156)
         self.CurrentTimeText2.configure(wrap='word')
 
         self.SaveShelveEntry1 = tk.Entry(self.TNotebook1_t0)
-        self.SaveShelveEntry1.place(relx=0.089, rely=0.09, height=21
-                , relwidth=0.123)
+        self.SaveShelveEntry1.place(
+            relx=0.089, rely=0.09, height=21, relwidth=0.123)
         self.SaveShelveEntry1.configure(background="white")
-        self.SaveShelveEntry1.configure(font="-family {DejaVu Sans Mono} -size 12")
+        self.SaveShelveEntry1.configure(
+            font="-family {DejaVu Sans Mono} -size 12")
         self.SaveShelveEntry1.configure(selectbackground="#c4c4c4")
 
         self.LoadShelveEntry1 = tk.Entry(self.TNotebook1_t0)
-        self.LoadShelveEntry1.place(relx=0.089, rely=0.03, height=21
-                , relwidth=0.123)
+        self.LoadShelveEntry1.place(
+            relx=0.089, rely=0.03, height=21, relwidth=0.123)
         self.LoadShelveEntry1.configure(background="white")
-        self.LoadShelveEntry1.configure(font="-family {DejaVu Sans Mono} -size 12")
+        self.LoadShelveEntry1.configure(
+            font="-family {DejaVu Sans Mono} -size 12")
         self.LoadShelveEntry1.configure(selectbackground="#c4c4c4")
 
         self.Label3 = tk.Label(self.TNotebook1_t0)
@@ -288,8 +378,8 @@ class Toplevel1:
         self.Button1.configure(text='''- 10000 frames''')
 
         self.Scale1 = tk.Scale(self.TNotebook1_t0, from_=0.0, to=100.0)
-        self.Scale1.place(relx=0.533, rely=0.149, relwidth=0.236, relheight=0.0
-                , height=40, bordermode='ignore')
+        self.Scale1.place(relx=0.533, rely=0.149, relwidth=0.236,
+                          relheight=0.0, height=40, bordermode='ignore')
         self.Scale1.configure(activebackground="#f9f9f9")
         self.Scale1.configure(font="-family {DejaVu Sans} -size 12")
         self.Scale1.configure(orient="horizontal")
@@ -315,29 +405,29 @@ class Toplevel1:
         self.TSeparator4.configure(orient="vertical")
 
         self.ResultsLabelframe1 = tk.LabelFrame(self.TNotebook1_t0)
-        self.ResultsLabelframe1.place(relx=0.815, rely=0.291, relheight=0.649
-                , relwidth=0.178)
+        self.ResultsLabelframe1.place(
+            relx=0.815, rely=0.291, relheight=0.649, relwidth=0.178)
         self.ResultsLabelframe1.configure(relief='groove')
         self.ResultsLabelframe1.configure(text='''Results & YOLOv3 Objects''')
         self.ResultsLabelframe1.configure(width=240)
 
         self.Radiobutton2 = tk.Radiobutton(self.TNotebook1_t0)
-        self.Radiobutton2.place(relx=0.222, rely=0.164, relheight=0.03
-                , relwidth=0.078)
+        self.Radiobutton2.place(relx=0.222, rely=0.164,
+                                relheight=0.03, relwidth=0.078)
         self.Radiobutton2.configure(activebackground="#f9f9f9")
         self.Radiobutton2.configure(justify='left')
         self.Radiobutton2.configure(text='''Right To Left''')
 
         self.Radiobutton2 = tk.Radiobutton(self.TNotebook1_t0)
-        self.Radiobutton2.place(relx=0.148, rely=0.164, relheight=0.03
-                , relwidth=0.075)
+        self.Radiobutton2.place(relx=0.148, rely=0.164,
+                                relheight=0.03, relwidth=0.075)
         self.Radiobutton2.configure(activebackground="#f9f9f9")
         self.Radiobutton2.configure(justify='left')
         self.Radiobutton2.configure(text='''Left To Right''')
 
         self.ShelveExplorerCanvas3 = tk.Canvas(self.TNotebook1_t1)
-        self.ShelveExplorerCanvas3.place(relx=0.007, rely=0.284, relheight=0.524
-                , relwidth=0.779)
+        self.ShelveExplorerCanvas3.place(
+            relx=0.007, rely=0.284, relheight=0.524, relwidth=0.779)
         self.ShelveExplorerCanvas3.configure(borderwidth="2")
         self.ShelveExplorerCanvas3.configure(relief='ridge')
         self.ShelveExplorerCanvas3.configure(selectbackground="#c4c4c4")
@@ -354,8 +444,8 @@ class Toplevel1:
         self.Button3.configure(text='''Go Right''')
 
         self.LineTimeText1 = tk.Text(self.TNotebook1_t1)
-        self.LineTimeText1.place(relx=0.526, rely=0.209, relheight=0.069
-                , relwidth=0.16)
+        self.LineTimeText1.place(
+            relx=0.526, rely=0.209, relheight=0.069, relwidth=0.16)
         self.LineTimeText1.configure(background="white")
         self.LineTimeText1.configure(font=font9)
         self.LineTimeText1.configure(selectbackground="#c4c4c4")
@@ -363,8 +453,8 @@ class Toplevel1:
         self.LineTimeText1.configure(wrap='word')
 
         self.BibNumText1 = tk.Text(self.TNotebook1_t1)
-        self.BibNumText1.place(relx=0.689, rely=0.209, relheight=0.069
-                , relwidth=0.093)
+        self.BibNumText1.place(relx=0.689, rely=0.209,
+                               relheight=0.069, relwidth=0.093)
         self.BibNumText1.configure(background="white")
         self.BibNumText1.configure(font=font9)
         self.BibNumText1.configure(selectbackground="#c4c4c4")
@@ -381,53 +471,59 @@ class Toplevel1:
         self.Label2.configure(activebackground="#f9f9f9")
         self.Label2.configure(text='''BIB NUM''')
 
-        self.PixelClockScale1 = tk.Scale(self.TNotebook1_t2, from_=0.0, to=100.0)
-        self.PixelClockScale1.place(relx=0.03, rely=0.164, relwidth=0.228
-                , relheight=0.0, height=40, bordermode='ignore')
-        self.PixelClockScale1.configure(activebackground="#f9f9f9")
-        self.PixelClockScale1.configure(font="-family {DejaVu Sans} -size 12")
-        self.PixelClockScale1.configure(orient="horizontal")
-        self.PixelClockScale1.configure(troughcolor="#d9d9d9")
+        self.IDSPixelClockScale1 = tk.Scale(
+            self.TNotebook1_t2, from_=0.0, to=100.0)
+        self.IDSPixelClockScale1.place(
+            relx=0.03, rely=0.164, relwidth=0.228, relheight=0.0, height=40, bordermode='ignore')
+        self.IDSPixelClockScale1.configure(activebackground="#f9f9f9")
+        self.IDSPixelClockScale1.configure(
+            font="-family {DejaVu Sans} -size 12")
+        self.IDSPixelClockScale1.configure(orient="horizontal")
+        self.IDSPixelClockScale1.configure(troughcolor="#d9d9d9")
 
         self.IDSGainScale1 = tk.Scale(self.TNotebook1_t2, from_=0.0, to=100.0)
-        self.IDSGainScale1.place(relx=0.03, rely=0.269, relwidth=0.228
-                , relheight=0.0, height=40, bordermode='ignore')
+        self.IDSGainScale1.place(
+            relx=0.03, rely=0.269, relwidth=0.228, relheight=0.0, height=40, bordermode='ignore')
         self.IDSGainScale1.configure(activebackground="#f9f9f9")
         self.IDSGainScale1.configure(font="-family {DejaVu Sans} -size 12")
         self.IDSGainScale1.configure(orient="horizontal")
         self.IDSGainScale1.configure(troughcolor="#d9d9d9")
 
-        self.IDSExposureScale1 = tk.Scale(self.TNotebook1_t2, from_=0.0, to=100.0)
-        self.IDSExposureScale1.place(relx=0.03, rely=0.373, relwidth=0.228
-                , relheight=0.0, height=40, bordermode='ignore')
+        self.IDSExposureScale1 = tk.Scale(
+            self.TNotebook1_t2, from_=0.0, to=100.0)
+        self.IDSExposureScale1.place(
+            relx=0.03, rely=0.373, relwidth=0.228, relheight=0.0, height=40, bordermode='ignore')
         self.IDSExposureScale1.configure(activebackground="#f9f9f9")
         self.IDSExposureScale1.configure(font="-family {DejaVu Sans} -size 12")
         self.IDSExposureScale1.configure(orient="horizontal")
         self.IDSExposureScale1.configure(troughcolor="#d9d9d9")
 
         self.IDSExposureCheckbutton1 = tk.Checkbutton(self.TNotebook1_t2)
-        self.IDSExposureCheckbutton1.place(relx=0.281, rely=0.373
-                , relheight=0.075, relwidth=0.083)
+        self.IDSExposureCheckbutton1.place(
+            relx=0.281, rely=0.373, relheight=0.075, relwidth=0.083)
         self.IDSExposureCheckbutton1.configure(activebackground="#f9f9f9")
         self.IDSExposureCheckbutton1.configure(justify='left')
         self.IDSExposureCheckbutton1.configure(text='''Auto exposure''')
-        self.IDSExposureCheckbutton1.configure(variable=page_generator_testing_notebook_support.che88)
+        self.IDSExposureCheckbutton1.configure(
+            variable=page_generator_testing_notebook_support.che88)
 
         self.Checkbutton1 = tk.Checkbutton(self.TNotebook1_t2)
-        self.Checkbutton1.place(relx=0.289, rely=0.522, relheight=0.075
-                , relwidth=0.053)
+        self.Checkbutton1.place(relx=0.289, rely=0.522,
+                                relheight=0.075, relwidth=0.053)
         self.Checkbutton1.configure(activebackground="#f9f9f9")
         self.Checkbutton1.configure(justify='left')
         self.Checkbutton1.configure(text='''Check''')
-        self.Checkbutton1.configure(variable=page_generator_testing_notebook_support.che88)
+        self.Checkbutton1.configure(
+            variable=page_generator_testing_notebook_support.che88)
 
         self.IDSGainCheckbutton1 = tk.Checkbutton(self.TNotebook1_t2)
-        self.IDSGainCheckbutton1.place(relx=0.274, rely=0.269, relheight=0.075
-                , relwidth=0.076)
+        self.IDSGainCheckbutton1.place(
+            relx=0.274, rely=0.269, relheight=0.075, relwidth=0.076)
         self.IDSGainCheckbutton1.configure(activebackground="#f9f9f9")
         self.IDSGainCheckbutton1.configure(justify='left')
         self.IDSGainCheckbutton1.configure(text='''Auto gain''')
-        self.IDSGainCheckbutton1.configure(variable=page_generator_testing_notebook_support.che88)
+        self.IDSGainCheckbutton1.configure(
+            variable=page_generator_testing_notebook_support.che88)
 
         self.Button1 = tk.Button(self.TNotebook1_t2)
         self.Button1.place(relx=0.111, rely=0.045, height=28, width=111)
@@ -445,8 +541,8 @@ class Toplevel1:
         self.Button1.configure(text='''Save Settings''')
 
         self.IDSPreviewCanvas2 = tk.Canvas(self.TNotebook1_t2)
-        self.IDSPreviewCanvas2.place(relx=0.607, rely=0.134, relheight=0.837
-                , relwidth=0.364)
+        self.IDSPreviewCanvas2.place(
+            relx=0.607, rely=0.134, relheight=0.837, relwidth=0.364)
         self.IDSPreviewCanvas2.configure(borderwidth="2")
         self.IDSPreviewCanvas2.configure(relief='ridge')
         self.IDSPreviewCanvas2.configure(selectbackground="#c4c4c4")
@@ -477,11 +573,13 @@ class Toplevel1:
         self.Label1.configure(activebackground="#f9f9f9")
         self.Label1.configure(text='''Exposure time''')
 
-        self.IDSFramerateScale1 = tk.Scale(self.TNotebook1_t2, from_=0.0, to=100.0)
-        self.IDSFramerateScale1.place(relx=0.289, rely=0.164, relwidth=0.228
-                , relheight=0.0, height=40, bordermode='ignore')
+        self.IDSFramerateScale1 = tk.Scale(
+            self.TNotebook1_t2, from_=0.0, to=100.0)
+        self.IDSFramerateScale1.place(
+            relx=0.289, rely=0.164, relwidth=0.228, relheight=0.0, height=40, bordermode='ignore')
         self.IDSFramerateScale1.configure(activebackground="#f9f9f9")
-        self.IDSFramerateScale1.configure(font="-family {DejaVu Sans} -size 12")
+        self.IDSFramerateScale1.configure(
+            font="-family {DejaVu Sans} -size 12")
         self.IDSFramerateScale1.configure(orient="horizontal")
         self.IDSFramerateScale1.configure(troughcolor="#d9d9d9")
 
@@ -494,10 +592,6 @@ class Toplevel1:
         self.TSizegrip1 = ttk.Sizegrip(top)
         self.TSizegrip1.place(anchor='se', relx=1.0, rely=1.0)
 
+
 if __name__ == '__main__':
     vp_start_gui()
-
-
-
-
-
