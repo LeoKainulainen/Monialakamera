@@ -12,7 +12,7 @@ import cv2
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 # from PIL import Image
-import codereuse
+import test_utils
 
 # cwd to if needed ..\
 # os.chdir(Path('.').resolve().parents[0])
@@ -34,7 +34,7 @@ save_with_prefix = str(out_dir) + os.sep + prefix + appver + "_" + datetime.now(
 
 
 # luo kansiot
-codereuse.folderexist(img_dir, out_dir)
+test_utils.folderexist(img_dir, out_dir)
 
 
 img_path1 = Path("test_images") / "2-peloton-finishlynx.jpg"
@@ -58,7 +58,7 @@ width = int(im.shape[1])
 print(im.shape)
 def splice_image_ram():
     file = Path(img_dir) / file_pattern
-    if codereuse.pattern_exists(str(file)):
+    if test_utils.pattern_exists(str(file)):
         return
     stamp_list = []
     date = datetime.now()
@@ -96,7 +96,7 @@ enumerate_run_time = None
 # Toimisko np.hsplit nopeammin? (hstack vastakohta)
 def splice_image():
     file = Path(img_dir) / file_pattern
-    if codereuse.pattern_exists(file):
+    if test_utils.pattern_exists(file):
         return
     stamp_list = []
     date = datetime.now()

@@ -8,7 +8,7 @@ import cv2
 # make importing modules possible from parent directory...
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
-import codereuse
+import test_utils
 import shelve
 
 appver = "v0.02_shelve"
@@ -25,7 +25,7 @@ save_with_prefix = str(out_dir) + os.sep + prefix + appver + "_" + datetime.now(
 save_shelve_name = str(db_dir) + os.sep + prefix + appver
 
 # luo kansiot
-codereuse.folderexist(img_dir, out_dir, db_dir)
+test_utils.folderexist(img_dir, out_dir, db_dir)
 
 
 img_path1 = Path("test_images") / "2-peloton-finishlynx.jpg"
@@ -47,7 +47,7 @@ print(im.shape)
 def splice_image_shelve():
     slices = list()
     file = Path(img_dir) / file_pattern
-    if codereuse.pattern_exists(str(file)):
+    if test_utils.pattern_exists(str(file)):
         return
     stamp_list = []
     db_shelve = shelve.open(save_shelve_name)
