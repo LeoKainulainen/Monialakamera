@@ -22,30 +22,6 @@ except ImportError:
     import tkinter.ttk as ttk
     py3 = True
 
-def Timertick2():
-    # self.Timerstarted
-
-    print("Timertick", Timerstarted)
-
-    if Timerstarted == 1:
-        # get the current local time from the PC
-        
-        # time2 = datetime.now().strftime("%H:%M:%S.%f")
-        addtime = timer()
-        timer2 = addtime - start
-        hours, rem = divmod(addtime-start, 3600)
-        minutes, seconds = divmod(rem, 60)
-        timer2 = ("{:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds))
-        print(timer2)
-        # if time string has changed, update it
-        # clock.config(text=time2)
-        # self.CurrentTimeText2.insert(0.0, "")
-        w.CurrentTimeText2.delete(0.0,tk.END)
-        w.CurrentTimeText2.insert(0.0, timer2)
-        # calls itself every 200 milliseconds
-        # to update the time display as needed
-        # could use >200 ms, but display gets jerky
-        w.CurrentTimeText2.after(100, Timertick2)
 
 def Ticking():
     # get the current local time from the PC
@@ -71,7 +47,7 @@ def TimerStart():
     print(start)
     global Timerstarted
     Timerstarted = 1
-    Timertick()
+    TimerTick()
     # Timertick2()
     print("Timer Started", Timerstarted)
 
@@ -81,7 +57,7 @@ def CapturePause():
     print(start)
     global Timerstarted
     Timerstarted = 1
-    Timertick()
+    TimerTick()
     print("Timer Started", Timerstarted)
 
 def TimerStop():
@@ -92,7 +68,7 @@ def TimerStop():
     print("Timer Stopped", Timerstarted)
 
 
-def Timertick():
+def TimerTick():
     # self.Timerstarted
 
     print("Timertick", Timerstarted)
@@ -115,10 +91,10 @@ def Timertick():
         # calls itself every 200 milliseconds
         # to update the time display as needed
         # could use >200 ms, but display gets jerky
-        w.TimerText2.after(100, Timertick)
+        w.TimerText2.after(100, TimerTick)
 
-Timertick()
-Timertick2()
+TimerTick()
+# Timertick2()
 
 
 def set_Tk_var():
