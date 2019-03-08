@@ -6,9 +6,6 @@
 #    Mar 07, 2019 11:58:58 AM EET  platform: Linux
 
 import sys
-import time
-from datetime import datetime
-from timeit import default_timer as timer
 
 try:
     import Tkinter as tk
@@ -56,74 +53,7 @@ def destroy_Toplevel1():
 
 
 class Toplevel1:
-    def tick(self):
-        # get the current local time from the PC
-        time1 = time.strftime('%H:%M:%S')
-        # if time string has changed, update it
-        # clock.config(text=time2)
-        # self.CurrentTimeText2.insert(0.0, "")
-        self.CurrentTimeText2.delete(0.0,tk.END)
-        self.CurrentTimeText2.insert(0.0, time1)
-        # calls itself every 200 milliseconds
-        # to update the time display as needed
-        # could use >200 ms, but display gets jerky
-        self.CurrentTimeText2.after(200, self.tick)
-    
-    
-    global Timerstarted
-    Timerstarted = 0
-    def TimerStart(self):
-        global start
-        start = timer()
-        self.TimerText2.configure(background="blue")
-        print(start)
-        global Timerstarted
-        Timerstarted = 1
-        self.Timertick()
-        print("Timer Started", Timerstarted)
-    
-    def PauseCapture(self):
-        global start
-        start = timer()
-        print(start)
-        global Timerstarted
-        Timerstarted = 1
-        self.Timertick()
-        print("Timer Started", Timerstarted)
 
-    def TimerStop(self):
-        global Timerstarted
-        Timerstarted = 0
-        self.TimerText2.configure(background="green")
-        self.Timertick()
-        print("Timer Stopped", Timerstarted)
-
-    
-    def Timertick(self):
-        
-        # self.Timerstarted
-
-        print("Timertick", Timerstarted)
-
-        if Timerstarted == 1:
-            # get the current local time from the PC
-            
-            # time2 = datetime.now().strftime("%H:%M:%S.%f")
-            addtime = timer()
-            timer2 = addtime - start
-            hours, rem = divmod(addtime-start, 3600)
-            minutes, seconds = divmod(rem, 60)
-            timer2 = ("{:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds))
-            print(timer2)
-            # if time string has changed, update it
-            # clock.config(text=time2)
-            # self.CurrentTimeText2.insert(0.0, "")
-            self.TimerText2.delete(0.0,tk.END)
-            self.TimerText2.insert(0.0, timer2)
-            # calls itself every 200 milliseconds
-            # to update the time display as needed
-            # could use >200 ms, but display gets jerky
-            self.TimerText2.after(100, self.Timertick)
 
     def __init__(self, top=None):
         '''This class configures and populates the toplevel window.
@@ -255,16 +185,17 @@ class Toplevel1:
         self.Button1 = tk.Button(self.TNotebook1_t0)
         self.Button1.place(relx=0.926, rely=0.015, height=98, width=89)
         self.Button1.configure(activebackground="#f9f9f9")
+        self.Button1.configure(command=page_generator_testing_notebook_support.TimerStop)
         self.Button1.configure(text='''STOP TIMER''')
         self.Button1.configure(wraplength="70")
-        self.Button1.configure(command=self.TimerStop)
+        
 
         self.Button1 = tk.Button(self.TNotebook1_t0)
         self.Button1.place(relx=0.778, rely=0.015, height=98, width=89)
         self.Button1.configure(activebackground="#f9f9f9")
+        self.Button1.configure(command=page_generator_testing_notebook_support.TimerStart)
         self.Button1.configure(text='''START (TIMER) (CAPTURE)''')
         self.Button1.configure(wraplength="70")
-        self.Button1.configure(command=self.TimerStart)
 
         self.StripScrollScale1 = tk.Scale(
             self.TNotebook1_t0, from_=0.0, to=100.0)
@@ -307,7 +238,7 @@ class Toplevel1:
         self.TimerText2 = tk.Text(self.TNotebook1_t0)
         self.TimerText2.place(relx=0.652, rely=0.045,
                               relheight=0.054, relwidth=0.116)
-        self.Timertick()
+        
         self.TimerText2.configure(background="white")
         self.TimerText2.configure(foreground="white")
         self.TimerText2.configure(font=fontTime)
@@ -318,7 +249,6 @@ class Toplevel1:
         self.CurrentTimeText2 = tk.Text(self.TNotebook1_t0)
         self.CurrentTimeText2.place(
             relx=0.533, rely=0.045, relheight=0.054, relwidth=0.116)
-        self.tick()
         self.CurrentTimeText2.configure(background="white")
         self.CurrentTimeText2.configure(font=fontTime)
         self.CurrentTimeText2.configure(selectbackground="#c4c4c4")
@@ -364,6 +294,7 @@ class Toplevel1:
         self.Button1 = tk.Button(self.TNotebook1_t0)
         self.Button1.place(relx=0.852, rely=0.015, height=98, width=89)
         self.Button1.configure(activebackground="#f9f9f9")
+        self.Button1.configure(command=page_generator_testing_notebook_support.CapturePause)
         self.Button1.configure(text='''PAUSE (CAPTURE)''')
         self.Button1.configure(wraplength="70")
 
@@ -592,6 +523,6 @@ class Toplevel1:
         self.TSizegrip1 = ttk.Sizegrip(top)
         self.TSizegrip1.place(anchor='se', relx=1.0, rely=1.0)
 
-
 if __name__ == '__main__':
     vp_start_gui()
+    

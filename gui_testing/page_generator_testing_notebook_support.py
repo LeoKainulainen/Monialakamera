@@ -6,6 +6,9 @@
 #    Mar 07, 2019 11:59:09 AM EET  platform: Linux
 
 import sys
+import time
+from datetime import datetime
+from timeit import default_timer as timer
 
 try:
     import Tkinter as tk
@@ -19,6 +22,105 @@ except ImportError:
     import tkinter.ttk as ttk
     py3 = True
 
+def Timertick2():
+    # self.Timerstarted
+
+    print("Timertick", Timerstarted)
+
+    if Timerstarted == 1:
+        # get the current local time from the PC
+        
+        # time2 = datetime.now().strftime("%H:%M:%S.%f")
+        addtime = timer()
+        timer2 = addtime - start
+        hours, rem = divmod(addtime-start, 3600)
+        minutes, seconds = divmod(rem, 60)
+        timer2 = ("{:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds))
+        print(timer2)
+        # if time string has changed, update it
+        # clock.config(text=time2)
+        # self.CurrentTimeText2.insert(0.0, "")
+        w.CurrentTimeText2.delete(0.0,tk.END)
+        w.CurrentTimeText2.insert(0.0, timer2)
+        # calls itself every 200 milliseconds
+        # to update the time display as needed
+        # could use >200 ms, but display gets jerky
+        w.CurrentTimeText2.after(100, Timertick2)
+
+def Ticking():
+    # get the current local time from the PC
+    time1 = time.strftime('%H:%M:%S')
+    # if time string has changed, update it
+    # clock.config(text=time2)
+    w.CurrentTimeText2.insert(0.0, "TEST")
+    # w.TimerText2.configure(background="blue")
+    w.CurrentTimeText2.delete(0.0, tk.END)
+    w.CurrentTimeText2.insert(0.0, time1)
+    # calls itself every 200 milliseconds
+    # to update the time display as needed
+    # could use >200 ms, but display gets jerky
+    w.CurrentTimeText2.after(200, Ticking)
+
+
+global Timerstarted
+Timerstarted = 0
+def TimerStart():
+    global start
+    start = timer()
+    w.TimerText2.configure(background="blue")
+    print(start)
+    global Timerstarted
+    Timerstarted = 1
+    Timertick()
+    # Timertick2()
+    print("Timer Started", Timerstarted)
+
+def CapturePause():
+    global start
+    start = timer()
+    print(start)
+    global Timerstarted
+    Timerstarted = 1
+    Timertick()
+    print("Timer Started", Timerstarted)
+
+def TimerStop():
+    global Timerstarted
+    Timerstarted = 0
+    w.TimerText2.configure(background="green")
+    Timertick()
+    print("Timer Stopped", Timerstarted)
+
+
+def Timertick():
+    # self.Timerstarted
+
+    print("Timertick", Timerstarted)
+
+    if Timerstarted == 1:
+        # get the current local time from the PC
+        
+        # time2 = datetime.now().strftime("%H:%M:%S.%f")
+        addtime = timer()
+        timer2 = addtime - start
+        hours, rem = divmod(addtime-start, 3600)
+        minutes, seconds = divmod(rem, 60)
+        timer2 = ("{:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds))
+        print(timer2)
+        # if time string has changed, update it
+        # clock.config(text=time2)
+        # self.CurrentTimeText2.insert(0.0, "")
+        w.TimerText2.delete(0.0, tk.END)
+        w.TimerText2.insert(0.0, timer2)
+        # calls itself every 200 milliseconds
+        # to update the time display as needed
+        # could use >200 ms, but display gets jerky
+        w.TimerText2.after(100, Timertick)
+
+Timertick()
+Timertick2()
+
+
 def set_Tk_var():
     global che88
     che88 = tk.StringVar()
@@ -28,6 +130,10 @@ def init(top, gui, *args, **kwargs):
     w = gui
     top_level = top
     root = top
+
+    # Functions to run at start
+    
+    Ticking()
 
 def destroy_window():
     # Function which closes the window.
