@@ -6,9 +6,25 @@
 #    Mar 08, 2019 07:29:48 AM EET  platform: Linux
 
 import sys
-import UI_functions
-from UI_functions import Clock
-# from UI_functions import Ticking
+import os
+
+import time
+import cv2
+import numpy as np
+
+from UI_timing_functions import Clock
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
+# from LinescanRecord import UI_IDS_functions as UI_IDS_f
+
+from LinescanRecord.UI_IDS_functions import IDSSettings, IDSPreview, IDSPreview_standalone
+from LinescanRecord.UI_IDS_functions import IDSPreview_stop
+
+from pyueye import ueye
+from IDSCapture.pyueye_camera import Camera
+from IDSCapture.pyueye_utils import FrameThread, ImageBuffer, ImageData
+
+
 
 try:
     import Tkinter as tk
@@ -54,13 +70,80 @@ def FinishDirectionRtoL():
     print('UI_Page_support.FinishDirectionRtoL')
     sys.stdout.flush()
 
+def process_image(self, image_data):
+    # reshape the image data as 1dimensional array
+    image = image_data.as_1d_image()
+    # make a gray image
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # image = cv2.medianBlur(image,5)
+    # find circles in the image
+    circles = cv2.HoughCircles(image, cv2.HOUGH_GRADIENT, 1.2, 100)
+    # make a color image again to mark the circles in green
+    image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+
+    # if circles is not None:
+    #     # convert the (x, y) coordinates and radius of the circles to integers
+    #     circles = np.round(circles[0, :]).astype("int")
+    #     # loop over the (x, y) coordinates and radius of the circles
+    #     for (x, y, r) in circles:
+    #         # draw the circle in the output image, then draw a rectangle
+    #         # corresponding to the center of the circle
+    #         cv2.circle(image, (x, y), r, (0, 255, 0), 6)
+
+    print(image_data)
+    # show the image with Qt
+    return image
+    # return QtGui.QImage(image.data,
+    #                     image_data.mem_info.width,
+    #                     image_data.mem_info.height,
+    #                     QtGui.QImage.Format_RGB888)
+
 def IDSStartPreview():
+    PreviewON = True
     print('UI_Page_support.IDSStartPreview')
     sys.stdout.flush()
+    # IDSPreview_standalone()
+    # IDSPreview()
+        # camera class to simplify uEye API access
+    cam = Camera(0)
+    cam.init()
+    ColorMode = ueye.IS_CM_BGR8_PACKED
+    cam.set_colormode(ColorMode)
+    cam.set_aoi(0,0, 0, 2, "centered")
+
+    
+
+
+    # a thread that waits for new images and processes all connected views
+    thread = FrameThread(cam, queue=None)
+
+    thread.start()
+
+    # time.sleep(60) 
+
+    # thread.stop()
+    # thread.join()
+
+    # cam.stop_video()
+    # cam.exit()
+
+    
+
+
+    
 
 def IDSStopPreview():
     print('UI_Page_support.IDSStopPreview')
     sys.stdout.flush()
+    IDSPreview_stop()
+
+    PreviewON == False
+    # -------------------------------
+    thread.stop()
+    thread.join()
+
+    cam.stop_video()
+    cam.exit()
 
 def LoadParticipantsCSV():
     print('UI_Page_support.LoadParticipantsCSV')

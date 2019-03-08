@@ -64,7 +64,7 @@ class Clock:
             hours, rem = divmod(addtime-start, 3600)
             minutes, seconds = divmod(rem, 60)
             timer2 = ("{:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds))
-            print(timer2)
+            # print(timer2)
             # if time string has changed, update it
             # clock.config(text=time2)
             # self.CurrentTimeText2.insert(0.0, "")

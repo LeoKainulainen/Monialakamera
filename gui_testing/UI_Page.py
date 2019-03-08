@@ -432,7 +432,7 @@ class Toplevel1:
         self.LineTimeText1.place(relx=0.526, rely=0.209, relheight=0.069
                 , relwidth=0.16)
         self.LineTimeText1.configure(background="white")
-        self.LineTimeText1.configure(font=font21)
+        self.StripTimeText2.configure(font=font18)
         self.LineTimeText1.configure(selectbackground="#c4c4c4")
         self.LineTimeText1.configure(width=216)
         self.LineTimeText1.configure(wrap='word')
