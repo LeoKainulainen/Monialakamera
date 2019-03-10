@@ -20,9 +20,9 @@ sys.path.append(
 from LinescanRecord.UI_IDS_functions import IDSSettings, IDSPreview, IDSPreview_standalone
 from LinescanRecord.UI_IDS_functions import IDSPreview_stop
 
-from pyueye import ueye
-from IDSCapture.pyueye_camera import Camera
-from IDSCapture.pyueye_utils import FrameThread, ImageBuffer, ImageData
+#from pyueye import ueye
+#from IDSCapture.pyueye_camera import Camera
+#from IDSCapture.pyueye_utils import FrameThread, ImageBuffer, ImageData
 
 
 

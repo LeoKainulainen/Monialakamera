@@ -61,6 +61,8 @@ def goRight():
          canvas.create_image(0, 0, anchor = NW, image=pic)
          canvas.image = pic
          value += 1
+
+
     
 
 #def motion(event):

@@ -20,6 +20,9 @@ except ImportError:
     py3 = True
 
 import UI_Page_support
+from datetime import datetime, timedelta
+from PIL import Image, ImageTk
+from tkinter import BOTH, END, LEFT
 
 def vp_start_gui():
     '''Starting point when module is the main routine.'''
@@ -31,6 +34,7 @@ def vp_start_gui():
     root.mainloop()
 
 w = None
+
 def create_Toplevel1(root, *args, **kwargs):
     '''Starting point when module is imported by another program.'''
     global w, w_win, rt
@@ -45,9 +49,95 @@ def destroy_Toplevel1():
     global w
     w.destroy()
     w = None
+def printer():
+    print("hello")
 
 class Toplevel1:
+    global value, im, width, height, stamp_list
+    value = 1
+    im = Image.open("1-peloton-finishlynx.jpg")
+    date = datetime.now()
+    stamp_list = []
+    width, height = im.size
+    for i in range (width):
+        date_combo = date + timedelta(milliseconds=i)
+        time_stamp = date_combo.strftime('%H:%M:%S.%f')[:-2]
+        stamp_list.append(time_stamp)
+
+
+  
+    print(len(stamp_list))
+    
+    
+    
+    def explore(self):
+            print(value)
+            pic = ImageTk.PhotoImage(im.crop((0, 0, 1000, height)))
+            self.ShelveExplorerCanvas3.create_image(0, 0, image=pic, anchor="nw")
+            self.ShelveExplorerCanvas3.image = pic
+            
+            
+    def goRight(self):
+
+     global value, width
+     
+     print(width)
+     if value > width/1000:
+         print("Cant go right")
+     else:
+         print("Going right")
+         print(value)
+         self.ShelveExplorerCanvas3.delete("all")
+         pic = ImageTk.PhotoImage(im.crop(((value*1000), 0, ((1+value)*1000), height)))
+         self.ShelveExplorerCanvas3.create_image(0, 0, image=pic, anchor="nw")
+         self.ShelveExplorerCanvas3.image = pic
+         value += 1
+
+    def goLeft(self):
+        global value, width
+        if value == 1:
+            print("Cant go left")
+
+        else:
+            value -= 1
+            print("Going left")
+            self.ShelveExplorerCanvas3.delete("all")
+            pic = ImageTk.PhotoImage(im.crop(((value*1000-1000), 0, (value*1000), height)))
+            self.ShelveExplorerCanvas3.create_image(0, 0, image=pic, anchor="nw")
+            self.ShelveExplorerCanvas3.image = pic
+        
+            print(value) 
+
+    def leftClick(self, event):
+        self.ShelveExplorerCanvas3.delete('text')
+        self.ShelveExplorerCanvas3.create_line(event.x, 0, event.x, height, tag='line')
+
+    def deleteLines(self):
+        print("Deleted lines")
+        self.ShelveExplorerCanvas3.delete('line')
+
+    def motion(self, event):
+      global stamp_list
+      try:
+        working_list = stamp_list[value*1000:value*1000+1000]
+        x = event.x
+        self.LineTimeText1.delete('1.0', END)
+        self.LineTimeText1.insert('1.0', "Time of the frame is " + str(working_list[event.x]))
+        self.ShelveExplorerCanvas3.delete('constant')
+        self.ShelveExplorerCanvas3.create_line(event.x, 0, event.x, height, tag='constant')
+        
+      except IndexError:
+        pass
+
+    
+    
     def __init__(self, top=None):
+        
+        
+
+        
+            
+
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
@@ -405,12 +495,13 @@ class Toplevel1:
         self.Button1.configure(activebackground="#f9f9f9")
 
         self.ShelveExplorerCanvas3 = tk.Canvas(self.TNotebook1_t1)
-        self.ShelveExplorerCanvas3.place(relx=0.007, rely=0.284, relheight=0.524
-                , relwidth=0.779)
+        self.ShelveExplorerCanvas3.place(relx=0.007, rely=0.284, relheight=0.800
+                , relwidth=1)
         self.ShelveExplorerCanvas3.configure(borderwidth="2")
         self.ShelveExplorerCanvas3.configure(relief='ridge')
         self.ShelveExplorerCanvas3.configure(selectbackground="#c4c4c4")
         self.ShelveExplorerCanvas3.configure(width=1051)
+        
 
         self.Button3 = tk.Button(self.TNotebook1_t1)
         self.Button3.place(relx=0.326, rely=0.209, height=48, width=119)
@@ -419,12 +510,17 @@ class Toplevel1:
         self.Button3.configure(text='''Go Left''')
         tooltip_font = "-family {DejaVu Sans} -size 12"
         ToolTip(self.Button3, tooltip_font, '''Go left on the strip (~1000 slices)''', delay=0.5)
+        self.Button3.configure(command=self.goLeft);
 
         self.Button3 = tk.Button(self.TNotebook1_t1)
         self.Button3.place(relx=0.422, rely=0.209, height=48, width=129)
         self.Button3.configure(activebackground="#f9f9f9")
-        self.Button3.configure(command=UI_Page_support.StripGoRight)
-        self.Button3.configure(text='''Go Right''')
+        self.Button3.configure(text='''Go right''')
+        self.Button3.configure(command=self.goRight);
+        
+
+
+        
         tooltip_font = "-family {DejaVu Sans} -size 12"
         ToolTip(self.Button3, tooltip_font, '''Go right on the strip (~1000 slices)''', delay=0.5)
 
@@ -459,9 +555,17 @@ class Toplevel1:
         self.Label2.configure(text='''BIB NUM''')
 
         self.Button3 = tk.Button(self.TNotebook1_t1)
+        self.Button3.place(relx=0.13, rely=0.209, height=48, width=119)
+        self.Button3.configure(activebackground="#f9f9f9")
+        self.Button3.configure(text='''Initialize canvas''')
+        self.Button3.configure(command=self.explore);
+        
+        self.Button3 = tk.Button(self.TNotebook1_t1)
         self.Button3.place(relx=0.23, rely=0.209, height=48, width=119)
         self.Button3.configure(activebackground="#f9f9f9")
-        self.Button3.configure(text='''Delete Lines''')
+        self.Button3.configure(text='''Delete lines''')
+        self.Button3.configure(command=self.deleteLines);
+        
         tooltip_font = "-family {DejaVu Sans} -size 12"
         ToolTip(self.Button3, tooltip_font, '''Delete the lines from Canvas''', delay=0.5)
 
@@ -618,6 +722,8 @@ class Toplevel1:
         self.style.configure('TSizegrip', background=_bgcolor)
         self.TSizegrip1 = ttk.Sizegrip(top)
         self.TSizegrip1.place(anchor='se', relx=1.0, rely=1.0)
+        self.ShelveExplorerCanvas3.bind("<Button-1>", self.leftClick);
+        self.ShelveExplorerCanvas3.bind('<Motion>', self.motion);
 
 # ======================================================
 # Modified by Rozen to remove Tkinter import statements and to receive 
