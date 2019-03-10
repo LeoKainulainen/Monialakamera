@@ -80,7 +80,7 @@ def mv_identify_participants(scan_area_start, scan_area_stop):
     
     print("coordinates" + str(first_points))
     
-    print("coord29")
+    
     for i in range(len(first_points)):
         spliced_img = img[0:height, first_points[i]-500:first_points[i]+150]
         cv2.imwrite("test" + str(i) +".jpg", spliced_img)
