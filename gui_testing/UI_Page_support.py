@@ -12,6 +12,11 @@ import time
 import cv2
 import numpy as np
 
+# For Tkinter Image Display
+
+from PIL import Image
+from PIL import ImageTk
+
 from UI_timing_functions import Clock
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
@@ -20,10 +25,10 @@ sys.path.append(
 from LinescanRecord.UI_IDS_functions import IDSSettings, IDSPreview, IDSPreview_standalone
 from LinescanRecord.UI_IDS_functions import IDSPreview_stop
 
-#from pyueye import ueye
-#from IDSCapture.pyueye_camera import Camera
-#from IDSCapture.pyueye_utils import FrameThread, ImageBuffer, ImageData
-
+from pyueye import ueye
+from IDSCapture.pyueye_camera import Camera
+from IDSCapture.pyueye_utils import FrameThread, ImageBuffer, ImageData
+from multiprocessing import Pipe
 
 
 try:
@@ -74,12 +79,12 @@ def process_image(self, image_data):
     # reshape the image data as 1dimensional array
     image = image_data.as_1d_image()
     # make a gray image
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # image = cv2.medianBlur(image,5)
     # find circles in the image
-    circles = cv2.HoughCircles(image, cv2.HOUGH_GRADIENT, 1.2, 100)
+    # circles = cv2.HoughCircles(image, cv2.HOUGH_GRADIENT, 1.2, 100)
     # make a color image again to mark the circles in green
-    image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+    # image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
 
     # if circles is not None:
     #     # convert the (x, y) coordinates and radius of the circles to integers
@@ -98,46 +103,94 @@ def process_image(self, image_data):
     #                     image_data.mem_info.height,
     #                     QtGui.QImage.Format_RGB888)
 
+
 def IDSStartPreview():
-    PreviewON = True
     print('UI_Page_support.IDSStartPreview')
     sys.stdout.flush()
-    # IDSPreview_standalone()
-    # IDSPreview()
+    global PreviewStatus
+    PreviewStatus = False
+    IDSCapturePreview()
+
+def IDSCapturePreview():
+    max_frames = 500
+    global PreviewStatus
+    if PreviewStatus != True:
+        # Begin IDS Video Capture and display via hstack
+
+        parent_conn, child_conn = Pipe()
+        cpt = 0
+        # max_frames = int(input("How many pictures would you like?: "))
+        # max_frames = 500
+
         # camera class to simplify uEye API access
-    cam = Camera(0)
-    cam.init()
-    ColorMode = ueye.IS_CM_BGR8_PACKED
-    cam.set_colormode(ColorMode)
-    cam.set_aoi(0,0, 0, 2, "centered")
+        cam = Camera()
+        cam.init()
+        cam.set_colormode(ueye.IS_CM_BGR8_PACKED)
+        cam.set_aoi(0, 0, 0, 2, "centered")
 
-    
+        cam.set_full_auto()
 
-
-    # a thread that waits for new images and processes all connected views
-    thread = FrameThread(cam, queue=None)
-
-    thread.start()
-
-    # time.sleep(60) 
-
-    # thread.stop()
-    # thread.join()
-
-    # cam.stop_video()
-    # cam.exit()
-
-    
+        cam.set_auto_pixelclock_framerate(420,500)
 
 
-    
+
+        cam.alloc()
+        cam.capture_video()
+
+
+        # a thread that waits for new images and processes all connected views
+        thread = FrameThread(cam, child_conn)
+
+        thread.start()
+        # global PreviewStatus
+        PreviewStatus = True
+        print("Start camera",PreviewStatus)
+
+        # keep repeating this
+    elif PreviewStatus == True:
+
+        slices = []
+        slices.clear()
+        while cpt < max_frames:
+            img = parent_conn.recv()
+
+
+
+            slices.append(img)
+
+            # cv.imwrite('train_file/image%04i.jpg' %cpt, img)
+
+            #print(input_q.qsize())
+
+            time.sleep(5)
+            cpt += 1
+
+
+        img = np.vstack(slices)
+
+        img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+        cv2.imshow("Image", img)
+
+        cv2.waitKey(200)
+        print("image captured")
+        print("Capture",PreviewStatus)
+
+        # Set Tkinter Preview canvas
+
+        # w.IDSPreviewCanvas2.create_image(image=img)
+
+        IDSCapturePreview()
+        # thread.stop()
+
+
 
 def IDSStopPreview():
     print('UI_Page_support.IDSStopPreview')
     sys.stdout.flush()
     IDSPreview_stop()
 
-    PreviewON == False
+    PreviewStatus = False
+    print("Strop Preview",PreviewStatus)
     # -------------------------------
     thread.stop()
     thread.join()
@@ -176,7 +229,6 @@ def TimerStart():
     TimerTime = Clock(w)
     TimerTime.TimerStart()
     # TimerTime.TimerTick()
-    
 
 def TimerStop():
     print('UI_Page_support.TimerStop')
@@ -208,8 +260,3 @@ def destroy_window():
 if __name__ == '__main__':
     import UI_Page
     UI_Page.vp_start_gui()
-    
-
-
-
-

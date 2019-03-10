@@ -28,7 +28,7 @@ except ImportError:
 
 
 global Timerstarted
-Timerstarted = 0
+Timerstarted = False
 
 class Clock:
     def __init__(self,w):
@@ -55,7 +55,7 @@ class Clock:
 
         print("Timertick", Timerstarted)
 
-        if Timerstarted == 1:
+        if Timerstarted == True:
             # get the current local time from the PC
             
             # time2 = datetime.now().strftime("%H:%M:%S.%f")
@@ -80,7 +80,7 @@ class Clock:
         self.w.TimerText2.configure(background="blue")
         print(start)
         global Timerstarted
-        Timerstarted = 1
+        Timerstarted = True
         self.TimerTick()
         # Timertick2()
         print("Timer Started", Timerstarted)
@@ -90,13 +90,13 @@ class Clock:
         start = timer()
         print(start)
         global Timerstarted
-        Timerstarted = 1
+        Timerstarted = True
         self.TimerTick()
         print("Timer Started", Timerstarted)
 
     def TimerStop(self):
         global Timerstarted
-        Timerstarted = 0
+        Timerstarted = False
         self.w.TimerText2.configure(background="green")
         self.TimerTick()
         print("Timer Stopped", Timerstarted)
