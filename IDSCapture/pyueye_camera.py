@@ -77,6 +77,8 @@ class Camera:
         rect_aoi = ueye.IS_RECT()
         rect_aoi.s32X = ueye.int(x)
         rect_aoi.s32Y = ueye.int(y)
+        rect_aoi.s32Width = ueye.int(width)
+        rect_aoi.s32Height = ueye.int(height)
         # if center_aoi == "centered":
         #     pass
 
