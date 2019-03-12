@@ -39,6 +39,7 @@ from pyueye import ueye
 import numpy as np
 import cv2
 import sys
+import time
 
 #---------------------------------------------------------------------------------------------------------------------------------------
 #
@@ -81,16 +82,49 @@ if nRet != ueye.IS_SUCCESS:
 # Set display mode to DIB
 nRet = ueye.is_SetDisplayMode(hCam, ueye.IS_SET_DM_DIB)
 
+## set color
 
+# nRet = ueye.is_SetColorMode(hCam, ueye.IS_CM_BGR8_PACKED)
+
+# print("SetColorMode IS_CM_BGR8_PACKED returns " + str(nRet))
+m_nColorMode = ueye.IS_CM_BGRA8_PACKED
+nBitsPerPixel = ueye.INT(32)
+# m_nColorMode = ueye.IS_CM_MONO8
+# nBitsPerPixel = ueye.INT(8)
+bytes_per_pixel = int(nBitsPerPixel / 8)
+print("IS_COLORMODE_CBYCRY: ", )
+print("\tm_nColorMode: \t\t", m_nColorMode)
+print("\tnBitsPerPixel: \t\t", nBitsPerPixel)
+print("\tbytes_per_pixel: \t\t", bytes_per_pixel)
+print()
 
 # Can be used to set the size and position of an "area of interest"(AOI) within an image
 nRet = ueye.is_AOI(hCam, ueye.IS_AOI_IMAGE_GET_AOI, rectAOI, ueye.sizeof(rectAOI))
 if nRet != ueye.IS_SUCCESS:
     print("is_AOI ERROR")
 
-# width = rectAOI.s32Width
-width = ueye.INT(2)
+# width2 = 1936
+# height2 = 1216
+
+rectAOI.s32Width = ueye.int(1936)
+rectAOI.s32Height = ueye.int(1216)
+
+
+width = rectAOI.s32Width
 height = rectAOI.s32Height
+
+rectAOI.s32X = ueye.int(0)
+rectAOI.s32Y = ueye.int(int(height/2))
+rectAOI.s32Width = ueye.int(1936)
+rectAOI.s32Height = ueye.int(4)
+
+
+nRet = ueye.is_AOI(hCam, ueye.IS_AOI_IMAGE_SET_AOI, rectAOI, ueye.sizeof(rectAOI))
+if nRet != ueye.IS_SUCCESS:
+    print("is_AOI ERROR")
+
+
+
 
 # Prints out some information about the camera and the sensor
 print("Camera model:\t\t", sInfo.strSensorName.decode('utf-8'))
@@ -105,6 +139,19 @@ print()
 nRet = ueye.is_SetAutoParameter(hCam, ueye.IS_SET_ENABLE_AUTO_GAIN, ueye.double(1), ueye.double(0))
 print("is_SetAutoParameter returns " + str(nRet))
 
+
+#get pixelclock
+
+#var
+
+nPixelClock = ueye.UINT(118)
+nRet = ueye.is_PixelClock(hCam, ueye.IS_PIXELCLOCK_CMD_GET, nPixelClock, ueye.sizeof(nPixelClock))
+print("Current PixelClock", nPixelClock)
+
+
+#set pixelclock
+nPixelClock = ueye.UINT()
+
 #fps
 
 targetFPS = ueye.double(500) # insert here which FPS you want
@@ -112,36 +159,14 @@ actualFPS = ueye.double(0)
 nRet = ueye.is_SetFrameRate(hCam,targetFPS,actualFPS)
 print("is_SetFrameRate returns " + str(nRet) + ", Actual FPS is: " + str(actualFPS) + "Target FPS is: " + str(targetFPS))
 
-#get pixelclock
 
-#var
-
-nPixelClock = ueye.UINT()
-nRet = ueye.is_PixelClock(hCam, ueye.IS_PIXELCLOCK_CMD_GET, nPixelClock, ueye.sizeof(nPixelClock))
-print("Current PixelClock", nPixelClock)
-
-
-#set pixelclock
-#nPixelClock = ueye.UINT()
 
 #set AutoExposure
 nRet = ueye.is_SetAutoParameter(hCam, ueye.IS_SET_ENABLE_AUTO_SHUTTER, ueye.double(1), ueye.double(0))
 print("is_SetAutoParameter returns " + str(nRet))
 
 
-## set color
 
-# nRet = ueye.is_SetColorMode(hCam, ueye.IS_CM_BGR8_PACKED)
-
-# print("SetColorMode IS_CM_BGR8_PACKED returns " + str(nRet))
-m_nColorMode = ueye.IS_CM_BGRA8_PACKED
-nBitsPerPixel = ueye.INT(32)
-bytes_per_pixel = int(nBitsPerPixel / 8)
-print("IS_COLORMODE_CBYCRY: ", )
-print("\tm_nColorMode: \t\t", m_nColorMode)
-print("\tnBitsPerPixel: \t\t", nBitsPerPixel)
-print("\tbytes_per_pixel: \t\t", bytes_per_pixel)
-print()
 
 
 #---------------------------------------------------------------------------------------------------------------------------------------
@@ -184,6 +209,11 @@ def IDSPreview():
     print("Starting IDS Camera Preview")
     # Continuous image display
     slices = list()
+    
+    cv2width = int(width)
+    cv2height = int(height/2)
+
+    print("created list")
     while(nRet == ueye.IS_SUCCESS):
 
         # In order to display the image in an OpenCV window we need to...
@@ -202,44 +232,54 @@ def IDSPreview():
         
     #---------------------------------------------------------------------------------------------------------------------------------------
         #Include image data processing here
-        cv2.rectangle(frame,(100,200),(200,300),(0,0,255),5)
-
-        cv2width = int(width)
-        cv2height = int(height/2)
+        # cv2.rectangle(frame,(100,200),(200,300),(0,0,255),5)
 
 
-        cv2.line(frame,(0,cv2height),(cv2width,cv2height),(255,255,255),5)
 
-        frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+        # cv2.line(frame,(0,cv2height),(cv2width,cv2height),(255,255,255),5)
 
-        if frame.shape[0] == 1:
-            print(frame.shape[1], "resized to", frame.shape[1]/2)
-            frame = cv2.resize(frame, (int(frame.shape[1]/2), 1))
-        else:
-            frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
+        # frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+
+        # if frame.shape[0] == 1:
+        #     print(frame.shape[1], "resized to", frame.shape[1]/2)
+        #     frame = cv2.resize(frame, (int(frame.shape[1]/2), 1))
+        # else:
+        #     frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
 
         
 
     #---------------------------------------------------------------------------------------------------------------------------------------
 
-
+        
+        
+        
         # Create Slice of few thousand slices
-        if 1000 < len(slices):
+        if 1000 > len(slices):
             slices.append(frame)
-            return slices
+            # print("slice list")
+            # return slices
+            if 1 == len(slices):
+                frame_timer = time.time()
         else:
+            print(len(slices))
+            print("hstack")
+            print("--- Total Running time --- %s seconds ---" % (time.time() - frame_timer))
+            slices_comb = np.vstack(slices)
+            slices_comb = cv2.resize(slices_comb, (0, 0), fx=0.5, fy=0.5)
+            slices_comb = cv2.rotate(slices_comb, cv2.ROTATE_90_CLOCKWISE)
+            cv2.imshow("SimpleLive_Python_uEye_OpenCV", slices_comb)
             slices.clear()
         
-        slices_comb = np.hstack(slices)
+        
 
         #...and finally display it
-        cv2.imshow("SimpleLive_Python_uEye_OpenCV", frame)
+        # cv2.imshow("SimpleLive_Python_uEye_OpenCV", frame)
 
             #empty list
-        list()
+        # list()
         # Press q if you want to end the loop
-        # if cv2.waitKey(1) & 0xFF == ord('q'):
-        #     break
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
     #---------------------------------------------------------------------------------------------------------------------------------------
 
     # Releases an image memory that was allocated using is_AllocImageMem() and removes it from the driver management
@@ -250,6 +290,23 @@ def IDSPreview():
 
     # Destroys the OpenCv windows
     cv2.destroyAllWindows()
+
+    if nRet != ueye.IS_SUCCESS:
+        print("is_CaptureVideo ERROR")
+
+    if nRet != ueye.IS_SUCCESS:
+        print("is_InquireImageMem ERROR")
+    else:
+        print("Press q to leave the programm")
+    # Prints out some information about the camera and the sensor
+    print("Camera model:\t\t", sInfo.strSensorName.decode('utf-8'))
+    print("Camera serial no.:\t", cInfo.SerNo.decode('utf-8'))
+    print("Maximum image width:\t", width)
+    print("Maximum image height:\t", height)
+    print("Current PixelClock", nPixelClock)
+    print("is_SetFrameRate returns " + str(nRet) + ", Actual FPS is: " + str(actualFPS) + "Target FPS is: " + str(targetFPS))
+
+    print()
 
 def IDSPreview_stop():
     # Releases an image memory that was allocated using is_AllocImageMem() and removes it from the driver management
@@ -281,13 +338,13 @@ def IDSPreview_standalone():
         
     #---------------------------------------------------------------------------------------------------------------------------------------
         #Include image data processing here
-        cv2.rectangle(frame,(100,200),(200,300),(0,0,255),5)
+        # cv2.rectangle(frame,(100,200),(200,300),(0,0,255),5)
 
         cv2width = int(width)
         cv2height = int(height/2)
 
 
-        cv2.line(frame,(0,cv2height),(cv2width,cv2height),(255,255,255),5)
+        # cv2.line(frame,(0,cv2height),(cv2width,cv2height),(255,255,255),5)
 
         frame = cv2.resize(frame,(0,0),fx=0.25, fy=0.25)
         
@@ -312,7 +369,27 @@ def IDSPreview_standalone():
     # Destroys the OpenCv windows
     cv2.destroyAllWindows()
 
+    if nRet != ueye.IS_SUCCESS:
+        print("is_CaptureVideo ERROR")
+
+    if nRet != ueye.IS_SUCCESS:
+        print("is_InquireImageMem ERROR")
+    else:
+        print("Press q to leave the programm")
+    # Prints out some information about the camera and the sensor
+    print("Camera model:\t\t", sInfo.strSensorName.decode('utf-8'))
+    print("Camera serial no.:\t", cInfo.SerNo.decode('utf-8'))
+    print("Maximum image width:\t", width)
+    print("Maximum image height:\t", height)
+    print("Current PixelClock", nPixelClock)
+    print("is_SetFrameRate returns " + str(nRet) + ", Actual FPS is: " + str(actualFPS) + "Target FPS is: " + str(targetFPS))
+
+    print()
+
+
 # IDSPreview_standalone()
+
+IDSPreview()
 
 print()
 print("END")
