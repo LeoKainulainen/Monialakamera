@@ -5,9 +5,10 @@ import os
 import sys
 import time
 import numpy as np
+
 import cvlib as cv
 import cv2
-import PIL
+from PIL import Image
 from cvlib.object_detection import draw_bbox
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
@@ -52,11 +53,13 @@ def mv_identify_participants(scan_area_start, scan_area_stop):
     # make list with objects ordered from either left to right or right to left
 
     finish_direction = "toright"
-
+    #print("boxes" + str(bbox[0]))
+    #print((list(np.array(bbox)[:, 0])))
     
     if finish_direction == "toright":
         
         first_points = list(np.array(bbox)[:, 2])
+        second_points = list(np.array(bbox)[:, 0])
         combined_list = list(zip(label, first_points))
         combined_list = sorted(combined_list, key=lambda x: int(x[1]), reverse=True)
         print("detected objects arranged left to right", combined_list, "\n")
@@ -69,25 +72,34 @@ def mv_identify_participants(scan_area_start, scan_area_stop):
 
     # write detected boxes to list
     
-    print(type(bbox), bbox, "\n")
-    print(type(label), label, "\n")
-    print(type(conf), conf)
+   #print(type(bbox), bbox, "\n")
+   # print(type(label), label, "\n")
+    #print(type(conf), conf)
 
     imgs = []
 
     
     first_points = sorted(first_points)
+    second_points = sorted(second_points)
+    print("coordinates1 " + str(first_points[0]))
+    print("coordinates2 " + str(second_points[0]))
     
-    print("coordinates" + str(first_points))
-    
-    
+    list_im = []
     for i in range(len(first_points)):
-        spliced_img = img[0:height, first_points[i]-500:first_points[i]+150]
+        spliced_img = img[0:height, second_points[i]:first_points[i]]
         cv2.imwrite("test" + str(i) +".jpg", spliced_img)
+        list_im.append("test" + str(i) +".jpg")
         imgs.append(spliced_img)
         
-
         
+    imgs_comb = Image.fromarray(imgs[0])
+    imgs    = [ Image.open(i) for i in list_im ]
+    min_shape = sorted( [(np.sum(b.size), b.size ) for b in imgs])[0][1]
+    imgs_comb = np.hstack( (np.asarray( b.resize(min_shape) ) for b in imgs ) )
+   
+    imgs_comb = Image.fromarray(imgs_comb)
+
+    imgs_comb.save( 'imagefromYOLO.jpg' )  
     
     return combined_list
 
