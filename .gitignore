@@ -8,11 +8,19 @@ LinescanEmulation/.vscode/settings.json
 faces/*
 faces_out/*
 faces_testing/*
+splicer_out
+splicer_out/*
+splicer/*
 
 !test_roll/
 test_roll/*
 
+diff_testing/*
+
 !Tools.md
 LinescanDetect/output_tools_win.py
 LinescanDetect/test.py
+
+MVDetect/list_ordering.py
+diff_testing/cropped_001.png
 

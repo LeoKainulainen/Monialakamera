@@ -13,8 +13,8 @@ import shelve
 
 appver = "v0.02_shelve"
 
-img_dir = Path("faces")
-out_dir = Path("faces_out")
+img_dir = Path("splicer")
+out_dir = Path("splicer_out")
 db_dir = out_dir / "db"
 
 prefix = "pattern_"
@@ -130,7 +130,7 @@ app_start_time = time.time()
 
 date = datetime.now()
 # splice_image_shelve()
-# join_splices_from_shelve()
+join_splices_from_shelve(80,100)
 print(type(slice))
 
 print("--- Total Running time --- %s seconds ---" % (time.time() - app_start_time))
