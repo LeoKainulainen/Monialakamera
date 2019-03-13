@@ -1,8 +1,10 @@
 """
 Testing CVlib
 """
+from pathlib import Path
 import os
 import sys
+from datetime import datetime, timedelta
 import time
 import numpy as np
 
@@ -14,12 +16,27 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 from LinescanRecord import splicer_shelve
 
+import test_utils
+
 app_start_time = time.time()
 
 # shelve open db takes percentage of input image as arguments ("start of image", "end of image")
 
 # splice image function from splicer_shelve.py
 # splicer_shelve.splice_image_shelve()
+
+appver = "v0.02_cvlib"
+
+img_dir = Path("splicer")
+out_dir = Path("splicer_out")
+db_dir = out_dir / "db"
+
+prefix = "pattern_"
+file_pattern = prefix + '%05d' + ".png"
+
+# esim pattern_v0.01ram_2019_03_03_23_15_46
+save_with_prefix = str(out_dir) + os.sep + prefix + appver + "_" + datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+# save_shelve_name = str(db_dir) + os.sep + prefix + appver
 
 def mv_identify_participants(scan_area_start, scan_area_stop):
     """takes arguments scan_area_start, scan_area_stop, which are parts of picture as 0-100 (%)
@@ -76,6 +93,10 @@ def mv_identify_participants(scan_area_start, scan_area_stop):
    # print(type(label), label, "\n")
     #print(type(conf), conf)
 
+    # luo kansiot
+    test_utils.folderexist(img_dir, out_dir, db_dir)
+    filesave = Path(img_dir) / file_pattern
+
     imgs = []
 
     
@@ -87,22 +108,22 @@ def mv_identify_participants(scan_area_start, scan_area_stop):
     list_im = []
     for i in range(len(first_points)):
         spliced_img = img[0:height, second_points[i]:first_points[i]]
-        cv2.imwrite("test" + str(i) +".jpg", spliced_img)
-        list_im.append("test" + str(i) +".jpg")
+        cv2.imwrite(str(filesave)%i, spliced_img)
+        list_im.append(str(filesave)%i)
         imgs.append(spliced_img)
         
-        
-    imgs_comb = Image.fromarray(imgs[0])
-    imgs    = [ Image.open(i) for i in list_im ]
-    min_shape = sorted( [(np.sum(b.size), b.size ) for b in imgs])[0][1]
-    imgs_comb = np.hstack( (np.asarray( b.resize(min_shape) ) for b in imgs ) )
+    imgs_comb = np.hstack(imgs)
+    # imgs_comb = Image.fromarray(imgs[0])
+    # imgs    = [ Image.open(i) for i in list_im ]
+    # min_shape = sorted( [(np.sum(b.size), b.size ) for b in imgs])[0][1]
+    # imgs_comb = np.hstack( (np.asarray( b.resize(min_shape) ) for b in imgs ) )
    
     imgs_comb = Image.fromarray(imgs_comb)
 
-    imgs_comb.save( 'imagefromYOLO.jpg' )  
+    imgs_comb.save(save_with_prefix + ".jpg")  
     
     return combined_list
 
-mv_identify_participants(0, 100)
+mv_identify_participants(80, 100)
 
 print("--- Total Running time --- %s seconds ---" % (time.time() - app_start_time))
