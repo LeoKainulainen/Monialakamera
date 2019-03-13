@@ -89,8 +89,9 @@ if nRet != ueye.IS_SUCCESS:
     print("is_AOI ERROR")
 
 # width = rectAOI.s32Width
-width = ueye.INT(2)
-height = rectAOI.s32Height
+width = ueye.int(100)
+# height = rectAOI.s32Height
+height = ueye.int(1936)
 
 # Prints out some information about the camera and the sensor
 print("Camera model:\t\t", sInfo.strSensorName.decode('utf-8'))
@@ -107,7 +108,7 @@ print("is_SetAutoParameter returns " + str(nRet))
 
 #fps
 
-targetFPS = ueye.double(500) # insert here which FPS you want
+targetFPS = ueye.double(100) # insert here which FPS you want
 actualFPS = ueye.double(0)
 nRet = ueye.is_SetFrameRate(hCam,targetFPS,actualFPS)
 print("is_SetFrameRate returns " + str(nRet) + ", Actual FPS is: " + str(actualFPS) + "Target FPS is: " + str(targetFPS))
@@ -116,7 +117,7 @@ print("is_SetFrameRate returns " + str(nRet) + ", Actual FPS is: " + str(actualF
 
 #var
 
-nPixelClock = ueye.UINT()
+nPixelClock = ueye.UINT(118)
 nRet = ueye.is_PixelClock(hCam, ueye.IS_PIXELCLOCK_CMD_GET, nPixelClock, ueye.sizeof(nPixelClock))
 print("Current PixelClock", nPixelClock)
 
@@ -210,7 +211,7 @@ def IDSPreview():
 
         cv2.line(frame,(0,cv2height),(cv2width,cv2height),(255,255,255),5)
 
-        frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+        # frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
 
         if frame.shape[0] == 1:
             print(frame.shape[1], "resized to", frame.shape[1]/2)
@@ -224,19 +225,26 @@ def IDSPreview():
 
 
         # Create Slice of few thousand slices
-        if 1000 < len(slices):
-            slices.append(frame)
-            return slices
-        else:
-            slices.clear()
+        # if 1000 < len(slices):
+        #     slices.append(frame)
+        #     return slices
+        # else:
+        #     slices.clear()
+
+        print(frame.shape)
         
-        slices_comb = np.hstack(slices)
+        # slices_comb = np.hstack(slices)
 
         #...and finally display it
+
+
         cv2.imshow("SimpleLive_Python_uEye_OpenCV", frame)
 
             #empty list
-        list()
+
+        # list()
+
+
         # Press q if you want to end the loop
         # if cv2.waitKey(1) & 0xFF == ord('q'):
         #     break
