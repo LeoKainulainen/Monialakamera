@@ -102,6 +102,11 @@ if nRet != ueye.IS_SUCCESS:
 width = rectAOI.s32Width
 height = rectAOI.s32Height
 
+global cameraHeight
+cameraHeight = height
+
+print("rectAOI.s32Height 1st: ", rectAOI.s32Height)
+
 # Prints out some information about the camera and the sensor
 print("Camera model:\t\t", sInfo.strSensorName.decode('utf-8'))
 print("Camera serial no.:\t", cInfo.SerNo.decode('utf-8'))
@@ -138,6 +143,9 @@ print()
 nRet = ueye.is_SetAutoParameter(hCam, ueye.IS_SET_ENABLE_AUTO_SHUTTER, ueye.double(1), ueye.double(0))
 print("is_SetAutoParameter returns " + str(nRet))
 
+ms = ueye.DOUBLE(0.81)
+
+nRet = ueye.is_Exposure(hCam, ueye.IS_EXPOSURE_CMD_GET_EXPOSURE, ms, ueye.sizeof(ms))
 
 ## set color
 
@@ -174,14 +182,57 @@ if nRet == ueye.IS_SUCCESS:
             nVerticalAoiMergePosition, ueye.sizeof(nVerticalAoiMergePosition))
         print("AOI Merge Position:", nVerticalAoiMergePosition)
 
-nVerticalAoiMergeMode = ueye.INT(1)
+# nVerticalAoiMergeMode = ueye.INT(1)
 
 # /* Set vertical AOI merge mode */
 # temp = ueye.int()
 # smode = ueye.INT(nVerticalAoiMergeMode)
 nVerticalAoiMergeMode = ueye.IS_VERTICAL_AOI_MERGE_MODE_FREERUN
+
+# nVerticalAoiMergeMode = ueye.IS_VERTICAL_AOI_MERGE_MODE_TRIGGERED_SOFTWARE
 nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_SET_VERTICAL_AOI_MERGE_MODE,
     ueye.INT(nVerticalAoiMergeMode), ueye.sizeof(nVerticalAoiMergeMode))
+
+#------ Supported features
+
+# capVerticalAoiMergeMode = ueye.IS_DEVICE_FEATURE_CAP_VERTICAL_AOI_MERGE
+# nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CAP_VERTICAL_AOI_MERGE,
+#     ueye.INT(capVerticalAoiMergeMode), ueye.sizeof(capVerticalAoiMergeMode))
+
+# INT nSupportedFeatures;
+# INT nRet = is_DeviceFeature(hCam, IS_DEVICE_FEATURE_CMD_GET_SUPPORTED_FEATURES,
+#                           (void*)&nSupportedFeatures, sizeof(nSupportedFeatures));
+# if (nRet == IS_SUCCESS)
+# {
+# if (nSupportedFeatures & IS_DEVICE_FEATURE_CAP_LINESCAN_MODE_FAST)
+# {
+#   // Enable line scan mode
+#   INT nMode = IS_DEVICE_FEATURE_CAP_LINESCAN_MODE_FAST;
+#   nRet = is_DeviceFeature(hCam, IS_DEVICE_FEATURE_CMD_SET_LINESCAN_MODE, (void*)&nMode,
+#                           sizeof(nMode));
+#   // Disable line scan mode
+#   nMode = 0;
+#   nRet = is_DeviceFeature(hCam, IS_DEVICE_FEATURE_CMD_SET_LINESCAN_MODE, (void*)&nMode,
+#                           sizeof(nMode));
+#   // Return line scan mode
+#   nRet = is_DeviceFeature(hCam, IS_DEVICE_FEATURE_CMD_GET_LINESCAN_MODE, (void*)&nMode,
+#                           sizeof(nMode));
+# }
+
+nSupportedFeatures = ueye.INT()
+
+nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_GET_SUPPORTED_FEATURES,
+    nSupportedFeatures, ueye.sizeof(nSupportedFeatures))
+
+if nRet == ueye.IS_SUCCESS:
+    if nSupportedFeatures & ueye.IS_DEVICE_FEATURE_CAP_VERTICAL_AOI_MERGE:
+        ## Check IS_DEVICE_FEATURE_CAP_VERTICAL_AOI_MERGE exists?
+        print("IS_DEVICE_FEATURE_CAP_VERTICAL_AOI_MERGE is a feature",)
+        nMode = ueye.IS_DEVICE_FEATURE_CAP_VERTICAL_AOI_MERGE
+        nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CAP_VERTICAL_AOI_MERGE,
+            ueye.INT(nMode), ueye.sizeof(nMode))
+
+#------
 
 if nRet == ueye.IS_SUCCESS:
 # /* Read and set new maximum AOI */
@@ -192,6 +243,8 @@ if nRet == ueye.IS_SUCCESS:
     maxWidth = ueye.int(pInfo.nMaxWidth)
     maxHeight = ueye.int(pInfo.nMaxHeight)
 
+    print(ueye.int(pInfo.nMaxHeight))
+
 
 # rectAOI = ueye.IS_RECT()
 
@@ -200,13 +253,14 @@ if nRet == ueye.IS_SUCCESS:
 # rectAOI.s32Y = 0;q
  
     rectAOI.s32X = ueye.INT(0)
-    rectAOI.s32Y = ueye.INT(int(maxHeight/2))
+    rectAOI.s32Y = ueye.INT(0)
+    # rectAOI.s32Y = ueye.INT(int(maxHeight/2))
 
 # C
 # rectAOI.s32Width = maxWidth;
 # rectAOI.s32Height = maxHeight;
 
-    rectAOI.s32Height = ueye.INT(8000)
+    # rectAOI.s32Height = ueye.INT(8000
 
     maxWidth = rectAOI.s32Width
     maxHeight = rectAOI.s32Height
@@ -225,7 +279,13 @@ if nRet == ueye.IS_SUCCESS:
 #                         (void*)&nVerticalAoiMergePosition, sizeof(nVerticalAoiMergePosition));
 # }
 
-    nVerticalAoiMergePosition = ueye.INT(int(height/2))
+    # nVerticalAoiMergePosition = ueye.INT(int(height/2))
+
+    nVerticalAoiMergePosition = ueye.INT(int(1216/2))
+
+    print("rectAOI.s32Height", height)
+    print("cameraHeight", cameraHeight)
+    print("nVerticalAoiMergePosition: ", nVerticalAoiMergePosition)
 
     nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_SET_VERTICAL_AOI_MERGE_POSITION, 
         nVerticalAoiMergePosition, ueye.sizeof(nVerticalAoiMergePosition))
@@ -265,7 +325,7 @@ nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_M
 
 nVerticalAoiMergeModeHeightNumber = ueye.INT()
 nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_HEIGHT_NUMBER,
-    nVerticalAoiMergeModeHeightNumber, ueye.sizeof(nVerticalAoiMergeModeHeightNumber))
+    ueye.UINT(nVerticalAoiMergeModeHeightNumber), ueye.sizeof(nVerticalAoiMergeModeHeightNumber))
 
 # print("nVerticalAoiMergeModeHeightNumber :", nVerticalAoiMergeModeHeightNumber)
 
@@ -273,10 +333,14 @@ nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_M
 # {
 # UINT* pVerticalAoiMergeModeHeightList = new UINT[nVerticalAoiMergeModeHeightNumber];
 
-# if nRet == ueye.IS_SUCCESS:
-    # pVerticalAoiMergeModeHeightList = ueye.UINT(list())
+if nRet == ueye.IS_SUCCESS:
+    # pVerticalAoiMergeModeHeightList = ueye.UINT()
+    # pVerticalAoiMergeModeHeightList.ueye.INT()
+    pVerticalAoiMergeModeHeightList = ueye.UINT() * nVerticalAoiMergeModeHeightNumber
+
+    # pVerticalAoiMergeModeHeightList
     # pVerticalAoiMergeModeHeightList = pVerticalAoiMergeModeHeightList[None]*nVerticalAoiMergeModeHeightNumber
-    # print("pVerticalAoiMergeModeHeightList :", pVerticalAoiMergeModeHeightList)
+    print("pVerticalAoiMergeModeHeightList :", pVerticalAoiMergeModeHeightList)
     # pVerticalAoiMergeModeHeightList = ueye.UINT[nVerticalAoiMergeModeHeightNumber]
     # pVerticalAoiMergeModeHeightList = ueye.UINT(malloc(ueye.sizeof(nVerticalAoiMergeModeHeightNumber))
 
@@ -299,11 +363,10 @@ nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_M
 #                         nVerticalAoiMergeModeHeightNumber * sizeof(UINT));
 
 # -------
-# nVerticalAoiMergeMode.UINT()
-# nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_HEIGHT_LIST,
-#     pVerticalAoiMergeModeHeightList, nVerticalAoiMergeModeHeightNumber * ueye.sizeof(nVerticalAoiMergeModeHeightNumber))
+    nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_HEIGHT_LIST,
+        ueye.UINT(pVerticalAoiMergeModeHeightList), nVerticalAoiMergeModeHeightNumber * ueye.sizeof(nVerticalAoiMergeModeHeightNumber))
 
-# print("pVerticalAoiMergeModeHeightList", pVerticalAoiMergeModeHeightList)
+    print("pVerticalAoiMergeModeHeightList :", pVerticalAoiMergeModeHeightList)
 # ------
 
 # if (nRet == IS_SUCCESS)
@@ -317,14 +380,14 @@ nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_M
 # }
 # if nRet = ueye.IS_SUCCESS
 
-if nRet == ueye.IS_SUCCESS:
-    nMaxHeight = ueye.UINT()
-    # nMaxHeight = pVerticalAoiMergeModeHeightList[-1]
-    # nMaxHeight = ueye.INT(8000)
-    nMaxHeight = ueye.INT(2)
-    print(nMaxHeight)
-    nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_SET_VERTICAL_AOI_MERGE_MODE,
-        nMaxHeight, ueye.sizeof(nMaxHeight))
+    if nRet == ueye.IS_SUCCESS:
+        # nMaxHeight = ueye.UINT()
+        # nMaxHeight = pVerticalAoiMergeModeHeightList[-1]
+        # nMaxHeight = ueye.UINT(8000)
+        nMaxHeight = ueye.UINT(2)
+        print(nMaxHeight)
+        nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_SET_VERTICAL_AOI_MERGE_MODE,
+            nMaxHeight, ueye.sizeof(nMaxHeight))
 
 
 #---------------------------------------------------------------------------------------------------------------------------------------
@@ -435,6 +498,14 @@ print("Camera model:\t\t", sInfo.strSensorName.decode('utf-8'))
 print("Camera serial no.:\t", cInfo.SerNo.decode('utf-8'))
 print("Maximum image width:\t", width)
 print("Maximum image height:\t", height)
+print("rectAOI.s32Height", height)
+print("cameraHeight", cameraHeight)
+print("nVerticalAoiMergePosition: ", nVerticalAoiMergePosition)
+print("pVerticalAoiMergeModeHeightList :", pVerticalAoiMergeModeHeightList)
+print("pVerticalAoiMergeModeHeightList :", pVerticalAoiMergeModeHeightList)
+print("is_SetAutoParameter (Autoexposure) returns " + str(nRet))
+print("AOI Merge MODE")
+print(nVerticalAoiMergeMode)
 print()
 
 
