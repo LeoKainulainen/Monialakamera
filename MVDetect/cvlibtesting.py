@@ -4,7 +4,7 @@ Testing CVlib
 import os
 import sys
 import time
-import numpy as nps
+import numpy as np
 
 import cvlib as cv
 import cv2
