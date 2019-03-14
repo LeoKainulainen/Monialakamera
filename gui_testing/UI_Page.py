@@ -6,6 +6,7 @@
 #    Mar 08, 2019 07:26:51 AM EET  platform: Linux
 
 import sys
+from pathlib import Path
 
 try:
     import Tkinter as tk
@@ -55,7 +56,7 @@ def printer():
 class Toplevel1:
     global value, im, width, height, stamp_list
     value = 1
-    im = Image.open("1-peloton-finishlynx.jpg")
+    im = Image.open(Path("test_images") / "1-peloton-finishlynx.jpg")
     date = datetime.now()
     stamp_list = []
     width, height = im.size

@@ -36,13 +36,14 @@
 
 #Libraries
 from pyueye import ueye
+import ctypes
 import numpy as np
 import cv2
 import sys
 import time
 
 #---------------------------------------------------------------------------------------------------------------------------------------
-#
+
 #Variables
 hCam = ueye.HIDS(0)             #0: first available camera;  1-254: The camera with the specified camera ID
 sInfo = ueye.SENSORINFO()
@@ -59,8 +60,19 @@ bytes_per_pixel = int(nBitsPerPixel / 8)
 print("START")
 print()
 
+# def uEyeException(Exception):
+#     def __init__(error_code):
+#         error_code = error_code
+#     def __str__():
+#         return "Err: " + str(error_code)
+
+# def check(nRet):
+#     if nRet != ueye.IS_SUCCESS:
+#         raise uEyeException(nRet)
+
 
 # Starts the driver and establishes the connection to the camera
+global nRet
 nRet = ueye.is_InitCamera(hCam, None)
 if nRet != ueye.IS_SUCCESS:
     print("is_InitCamera ERROR")
@@ -82,49 +94,22 @@ if nRet != ueye.IS_SUCCESS:
 # Set display mode to DIB
 nRet = ueye.is_SetDisplayMode(hCam, ueye.IS_SET_DM_DIB)
 
-## set color
 
-# nRet = ueye.is_SetColorMode(hCam, ueye.IS_CM_BGR8_PACKED)
-
-# print("SetColorMode IS_CM_BGR8_PACKED returns " + str(nRet))
-m_nColorMode = ueye.IS_CM_BGRA8_PACKED
-nBitsPerPixel = ueye.INT(32)
-# m_nColorMode = ueye.IS_CM_MONO8
-# nBitsPerPixel = ueye.INT(8)
-bytes_per_pixel = int(nBitsPerPixel / 8)
-print("IS_COLORMODE_CBYCRY: ", )
-print("\tm_nColorMode: \t\t", m_nColorMode)
-print("\tnBitsPerPixel: \t\t", nBitsPerPixel)
-print("\tbytes_per_pixel: \t\t", bytes_per_pixel)
-print()
 
 # Can be used to set the size and position of an "area of interest"(AOI) within an image
 nRet = ueye.is_AOI(hCam, ueye.IS_AOI_IMAGE_GET_AOI, rectAOI, ueye.sizeof(rectAOI))
 if nRet != ueye.IS_SUCCESS:
     print("is_AOI ERROR")
 
-# width2 = 1936
-# height2 = 1216
-
-rectAOI.s32Width = ueye.int(1936)
-rectAOI.s32Height = ueye.int(1216)
-
+rectAOI.s32Height = 8000
 
 width = rectAOI.s32Width
 height = rectAOI.s32Height
 
-rectAOI.s32X = ueye.int(0)
-rectAOI.s32Y = ueye.int(int(height/2))
-rectAOI.s32Width = ueye.int(1936)
-rectAOI.s32Height = ueye.int(4)
+global cameraHeight
+cameraHeight = height
 
-
-nRet = ueye.is_AOI(hCam, ueye.IS_AOI_IMAGE_SET_AOI, rectAOI, ueye.sizeof(rectAOI))
-if nRet != ueye.IS_SUCCESS:
-    print("is_AOI ERROR")
-
-
-
+print("rectAOI.s32Height 1st: ", rectAOI.s32Height)
 
 # Prints out some information about the camera and the sensor
 print("Camera model:\t\t", sInfo.strSensorName.decode('utf-8'))
@@ -135,39 +120,288 @@ print()
 
 
 
-#########
-nRet = ueye.is_SetAutoParameter(hCam, ueye.IS_SET_ENABLE_AUTO_GAIN, ueye.double(1), ueye.double(0))
-print("is_SetAutoParameter returns " + str(nRet))
+#########Auto Gain
+nRet = ueye.is_SetAutoParameter(hCam, ueye.IS_SET_ENABLE_AUTO_GAIN, ueye.DOUBLE(1), ueye.DOUBLE(0))
+print("is_SetAutoParameter (Autogain) returns " + str(nRet))
+
+# Gain Boost
+nRet = ueye.is_SetGainBoost(hCam, ueye.INT(1))
+
+#fps
+
+# targetFPS = ueye.double(160) # insert here which FPS you want
+# actualFPS = ueye.double(0)
+# nRet = ueye.is_SetFrameRate(hCam,targetFPS,actualFPS)
+# print("is_SetFrameRate returns " + str(nRet) + ", Actual FPS is: " + str(actualFPS) + "Target FPS is: " + str(targetFPS))
 
 
 #get pixelclock
-
 #var
-
-nPixelClock = ueye.UINT(118)
+nPixelClock = ueye.UINT()
 nRet = ueye.is_PixelClock(hCam, ueye.IS_PIXELCLOCK_CMD_GET, nPixelClock, ueye.sizeof(nPixelClock))
+nPixelClock = ueye.UINT(118)
+nRet = ueye.is_PixelClock(hCam, ueye.IS_PIXELCLOCK_CMD_SET, nPixelClock, ueye.sizeof(nPixelClock))
 print("Current PixelClock", nPixelClock)
 
 
 #set pixelclock
-nPixelClock = ueye.UINT()
 
-#fps
-
-targetFPS = ueye.double(500) # insert here which FPS you want
-actualFPS = ueye.double(0)
-nRet = ueye.is_SetFrameRate(hCam,targetFPS,actualFPS)
-print("is_SetFrameRate returns " + str(nRet) + ", Actual FPS is: " + str(actualFPS) + "Target FPS is: " + str(targetFPS))
-
+#nPixelClock = ueye.UINT()
+# nRet = ueye.is_PixelClock(hCam, ueye.IS_PIXELCLOCK_CMD_SET, nPixelClock, ueye.sizeof(nPixelClock))
+# print("Current PixelClock", nPixelClock)
 
 
 #set AutoExposure
-nRet = ueye.is_SetAutoParameter(hCam, ueye.IS_SET_ENABLE_AUTO_SHUTTER, ueye.double(1), ueye.double(0))
+nRet = ueye.is_SetAutoParameter(hCam, ueye.IS_SET_ENABLE_AUTO_SHUTTER, ueye.double(0), ueye.double(1))
 print("is_SetAutoParameter returns " + str(nRet))
 
+ms = ueye.DOUBLE(0.228)
+
+nRet = ueye.is_Exposure(hCam, ueye.IS_EXPOSURE_CMD_SET_EXPOSURE, ms, ueye.sizeof(ms))
+
+## set color
+
+# nRet = ueye.is_SetColorMode(hCam, ueye.IS_CM_BGR8_PACKED)
+
+# print("SetColorMode IS_CM_BGR8_PACKED returns " + str(nRet))
+m_nColorMode = ueye.IS_CM_BGRA8_PACKED
+nBitsPerPixel = ueye.INT(32)
+bytes_per_pixel = int(nBitsPerPixel / 8)
+print("IS_COLORMODE_CBYCRY: ", )
+print("\tm_nColorMode: \t\t", m_nColorMode)
+print("\tnBitsPerPixel: \t\t", nBitsPerPixel)
+print("\tbytes_per_pixel: \t\t", bytes_per_pixel)
+print()
 
 
 
+## AOI Merge mode
+# https://en.ids-imaging.com/manuals/uEye_SDK/EN/uEye_Manual_4.91.1/index.html
+
+nVerticalAoiMergeMode = ueye.INT(0)
+nVerticalAoiMergePosition = ueye.INT(0)
+
+# /* Read current vertical AOI merge mode */
+
+
+nRet = ueye.INT(ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_MODE,
+    nVerticalAoiMergeMode, ueye.sizeof(nVerticalAoiMergeMode)))
+if nRet == ueye.IS_SUCCESS:
+    print("AOI Merge MODE:", nVerticalAoiMergeMode)
+    if nVerticalAoiMergeMode == ueye.IS_VERTICAL_AOI_MERGE_MODE_FREERUN:
+    # /* Read current AOI merge position */
+        nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_POSITION,
+            nVerticalAoiMergePosition, ueye.sizeof(nVerticalAoiMergePosition))
+        print("AOI Merge Position:", nVerticalAoiMergePosition)
+
+# nVerticalAoiMergeMode = ueye.INT(1)
+
+# /* Set vertical AOI merge mode */
+# temp = ueye.int()
+# smode = ueye.INT(nVerticalAoiMergeMode)
+# nVerticalAoiMergeMode = ueye.IS_VERTICAL_AOI_MERGE_MODE_FREERUN
+nVerticalAoiMergeMode = ueye.IS_VERTICAL_AOI_MERGE_MODE_TRIGGERED_SOFTWARE
+
+nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_SET_VERTICAL_AOI_MERGE_MODE,
+    ueye.INT(nVerticalAoiMergeMode), ueye.sizeof(nVerticalAoiMergeMode))
+
+#------ Supported features
+
+# capVerticalAoiMergeMode = ueye.IS_DEVICE_FEATURE_CAP_VERTICAL_AOI_MERGE
+# nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CAP_VERTICAL_AOI_MERGE,
+#     ueye.INT(capVerticalAoiMergeMode), ueye.sizeof(capVerticalAoiMergeMode))
+
+# INT nSupportedFeatures;
+# INT nRet = is_DeviceFeature(hCam, IS_DEVICE_FEATURE_CMD_GET_SUPPORTED_FEATURES,
+#                           (void*)&nSupportedFeatures, sizeof(nSupportedFeatures));
+# if (nRet == IS_SUCCESS)
+# {
+# if (nSupportedFeatures & IS_DEVICE_FEATURE_CAP_LINESCAN_MODE_FAST)
+# {
+#   // Enable line scan mode
+#   INT nMode = IS_DEVICE_FEATURE_CAP_LINESCAN_MODE_FAST;
+#   nRet = is_DeviceFeature(hCam, IS_DEVICE_FEATURE_CMD_SET_LINESCAN_MODE, (void*)&nMode,
+#                           sizeof(nMode));
+#   // Disable line scan mode
+#   nMode = 0;
+#   nRet = is_DeviceFeature(hCam, IS_DEVICE_FEATURE_CMD_SET_LINESCAN_MODE, (void*)&nMode,
+#                           sizeof(nMode));
+#   // Return line scan mode
+#   nRet = is_DeviceFeature(hCam, IS_DEVICE_FEATURE_CMD_GET_LINESCAN_MODE, (void*)&nMode,
+#                           sizeof(nMode));
+# }
+
+nSupportedFeatures = ueye.INT()
+
+nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_GET_SUPPORTED_FEATURES,
+    nSupportedFeatures, ueye.sizeof(nSupportedFeatures))
+
+# if nRet == ueye.IS_SUCCESS:
+#     if nSupportedFeatures & ueye.IS_DEVICE_FEATURE_CAP_VERTICAL_AOI_MERGE:
+#         ## Check IS_DEVICE_FEATURE_CAP_VERTICAL_AOI_MERGE exists?
+#         print("IS_DEVICE_FEATURE_CAP_VERTICAL_AOI_MERGE is a feature",)
+#         nMode = ueye.IS_DEVICE_FEATURE_CAP_VERTICAL_AOI_MERGE
+#         nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CAP_VERTICAL_AOI_MERGE,
+#             ueye.INT(nMode), ueye.sizeof(nMode))
+
+#------
+
+if nRet == ueye.IS_SUCCESS:
+# /* Read and set new maximum AOI */
+    pInfo = ueye.SENSORINFO()
+
+    nRet = ueye.is_GetSensorInfo(hCam, pInfo)
+
+    maxWidth = ueye.int(pInfo.nMaxWidth)
+    maxHeight = ueye.int(pInfo.nMaxHeight)
+
+    print("ueye.int(pInfo.nMaxHeight)", ueye.int(pInfo.nMaxHeight))
+
+
+# rectAOI = ueye.IS_RECT()
+
+# C
+# rectAOI.s32X = 0;
+# rectAOI.s32Y = 0;q
+ 
+    rectAOI.s32X = ueye.INT(0)
+    rectAOI.s32Y = ueye.INT(0)
+    # rectAOI.s32Y = ueye.INT(int(maxHeight/2))
+
+# C
+# rectAOI.s32Width = maxWidth;
+# rectAOI.s32Height = maxHeight;
+
+    
+
+    maxWidth = rectAOI.s32Width
+    maxHeight = rectAOI.s32Height
+
+# C
+# nRet = is_AOI(hCam, IS_AOI_IMAGE_SET_AOI, (void*)&rectAOI, sizeof(rectAOI));
+
+    nRet = ueye.is_AOI(hCam, ueye.IS_AOI_IMAGE_SET_AOI, rectAOI, ueye.sizeof(rectAOI))
+
+  
+# /*Set vertical AOI merge position */
+
+# C
+# INT nVerticalAoiMergePosition = 100;
+# nRet = is_DeviceFeature(hCam, IS_DEVICE_FEATURE_CMD_SET_VERTICAL_AOI_MERGE_POSITION,
+#                         (void*)&nVerticalAoiMergePosition, sizeof(nVerticalAoiMergePosition));
+# }
+
+    # nVerticalAoiMergePosition = ueye.INT(int(height/2))
+
+    # nVerticalAoiMergePosition = ueye.INT(int(1216/2))
+
+    nVerticalAoiMergePosition = ueye.INT(608)
+
+    print("rectAOI.s32Height", height)
+    print("cameraHeight", cameraHeight)
+    print("nVerticalAoiMergePosition: ", nVerticalAoiMergePosition)
+
+    nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_SET_VERTICAL_AOI_MERGE_POSITION, 
+        nVerticalAoiMergePosition, ueye.sizeof(nVerticalAoiMergePosition))
+
+# # /* Read current vertical AOI merge mode */
+
+# nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_MODE,
+#     ueye.INT(nVerticalAoiMergeMode), ueye.sizeof(nVerticalAoiMergeMode))
+# if nRet == ueye.IS_SUCCESS:
+#     print("AOI Merge MODE")
+#     print(nVerticalAoiMergeMode)
+
+
+# /* Get the default value for the vertical AOI merge mode height */
+# INT nHeight = 0;
+# INT nRet = is_DeviceFeature(hCam, IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_HEIGHT_DEFAULT, 
+#                           (void*)&nHeight, sizeof(nHeight));
+ 
+# /* Get current value of the vertical AOI merge mode height */
+# nRet = is_DeviceFeature(hCam, IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_HEIGHT,
+
+#                        (void*)&nHeight, sizeof(nHeight));
+
+nHeight = ueye.INT(0)
+nRet = ueye.is_DeviceFeature(hCam,ueye.IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_HEIGHT_DEFAULT,
+    nHeight, ueye.sizeof(nHeight))
+
+print("IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_HEIGHT_DEFAULT: ", nHeight)
+
+nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_HEIGHT,
+    nHeight, ueye.sizeof(nHeight))
+
+print("IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_HEIGHT: ", nHeight)
+ 
+# /* Get the number of elements in the vertical AOI merge mode height list */
+# INT nVerticalAoiMergeModeHeightNumber;
+# nRet = is_DeviceFeature(hCam, IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_HEIGHT_NUMBER,
+
+#                       (void*)&nVerticalAoiMergeModeHeightNumber,
+#                        sizeof(nVerticalAoiMergeModeHeightNumber));
+
+nVerticalAoiMergeModeHeightNumber = ueye.UINT()
+nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_HEIGHT_NUMBER,
+    nVerticalAoiMergeModeHeightNumber, ueye.sizeof(nVerticalAoiMergeModeHeightNumber))
+
+print("nVerticalAoiMergeModeHeightNumber :", nVerticalAoiMergeModeHeightNumber)
+
+# if (nRet == IS_SUCCESS)
+# {
+# UINT* pVerticalAoiMergeModeHeightList = new UINT[nVerticalAoiMergeModeHeightNumber];
+
+if nRet == ueye.IS_SUCCESS:
+    list_AOI_merge_height_list = (ueye.UINT * int(nVerticalAoiMergeModeHeightNumber))()
+
+    # print("pVerticalAoiMergeModeHeightList", pVerticalAoiMergeModeHeightList)
+
+# /* Get the vertical AOI merge mode height list */pVerticalAoiMergeModeHeightList
+# nRet = is_DeviceFeature(hCam, IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_HEIGHT_LIST,
+
+#                         (void*)pVerticalAoiMergeModeHeightList,
+#                         nVerticalAoiMergeModeHeightNumber * sizeof(UINT));
+
+# -------
+    # nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_HEIGHT_LIST,
+    #     pVerticalAoiMergeModeHeightList, nVerticalAoiMergeModeHeightNumber * ueye.sizeof(nVerticalAoiMergeModeHeightNumber))
+    
+    nRet = ueye.is_PixelClock(hCam, ueye.IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_HEIGHT_LIST, 
+        list_AOI_merge_height_list, nVerticalAoiMergeModeHeightNumber*ueye.sizeof(nVerticalAoiMergeModeHeightNumber))
+    print(list_AOI_merge_height_list)
+    pVerticalAoiMergeModeHeightList = np.frombuffer(list_AOI_merge_height_list, int)
+    print('PxCLK list:', nRet, pVerticalAoiMergeModeHeightList[0:nVerticalAoiMergeModeHeightNumber.value])
+
+    print("pVerticalAoiMergeModeHeightList :", pVerticalAoiMergeModeHeightList)
+# ------
+
+# if (nRet == IS_SUCCESS)
+# {
+#   /* Set the maximum possible vertical AOI merge mode height depending on the current image height */
+#   UINT nMaxHeight = pVerticalAoiMergeModeHeightList[nVerticalAoiMergeModeHeightNumber - 1];
+#   nRet = is_DeviceFeature(hCam, IS_DEVICE_FEATURE_CMD_SET_VERTICAL_AOI_MERGE_HEIGHT,
+
+#                            (void*)&nMaxHeight, sizeof(nMaxHeight));
+# }
+# }
+# if nRet = ueye.IS_SUCCESS
+
+    # if nRet == ueye.IS_SUCCESS:
+    #     print("---------------------------------------------", nMaxHeight)
+    #     # nMaxHeight = ueye.UINT()
+    #     print("pVerticalAoiMergeModeHeightList[]", pVerticalAoiMergeModeHeightList[0])
+    #     # nMaxHeight = (pVerticalAoiMergeModeHeightList)[-1]
+        
+    #     nMaxHeight = ueye.UINT(1000)
+    #     # nMaxHeight = ueye.UINT(2)
+    #     print("nMaxHeight", nMaxHeight)
+    #     nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_SET_VERTICAL_AOI_MERGE_HEIGHT,
+    #         nMaxHeight, ueye.sizeof(nMaxHeight))
+
+    #     nRet = ueye.is_DeviceFeature(hCam, ueye.IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_HEIGHT,
+    #     nHeight, ueye.sizeof(nHeight))
+
+    #     print("IS_DEVICE_FEATURE_CMD_GET_VERTICAL_AOI_MERGE_HEIGHT: ", nHeight)
 
 #---------------------------------------------------------------------------------------------------------------------------------------
 
@@ -207,6 +441,8 @@ def IDSSettings():
 #         def IDSPreview(self):
 
 def IDSPreview2():
+    global nRet
+    print(nRet)
     while(nRet == ueye.IS_SUCCESS):
         frame_timer = time.time()
         # In order to display the image in an OpenCV window we need to...

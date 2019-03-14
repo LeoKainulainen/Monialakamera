@@ -22,8 +22,13 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 # from LinescanRecord import UI_IDS_functions as UI_IDS_f
 
-from LinescanRecord.UI_IDS_functions import IDSSettings, IDSPreview, IDSPreview_standalone
-from LinescanRecord.UI_IDS_functions import IDSPreview_stop
+# from LinescanRecord.UI_IDS_functions import IDSSettings, IDSPreview, IDSPreview_standalone
+# from LinescanRecord.UI_IDS_functions import IDSPreview_stop
+
+#Linescann
+from LinescanRecord.UI_IDS_functions3 import IDSSettings, IDSPreview2, IDSPreview_standalone
+from LinescanRecord.UI_IDS_functions3 import IDSPreview_stop
+
 
 from pyueye import ueye
 from IDSCapture.pyueye_camera import Camera
@@ -109,7 +114,8 @@ def IDSStartPreview():
     sys.stdout.flush()
     global PreviewStatus
     PreviewStatus = False
-    IDSCapturePreview()
+    IDSPreview2()
+    # IDSCapturePreview()
 
 def IDSCapturePreview():
     max_frames = 500
