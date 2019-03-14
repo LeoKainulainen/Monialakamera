@@ -298,6 +298,7 @@ class Toplevel1:
         self.StripScrollScale1.place(relx=0.007, rely=0.94, relwidth=0.799
                 , relheight=0.0, height=64, bordermode='ignore')
         self.StripScrollScale1.configure(activebackground="#f9f9f9")
+        self.StripScrollScale1.configure(command=UI_Page_support.StripScrollScale)
         self.StripScrollScale1.configure(font=font16)
         self.StripScrollScale1.configure(length="1074")
         self.StripScrollScale1.configure(orient="horizontal")

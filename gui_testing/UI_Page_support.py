@@ -5,6 +5,9 @@
 #  in conjunction with Tcl version 8.6
 #    Mar 08, 2019 07:29:48 AM EET  platform: Linux
 
+
+from pathlib import Path
+import os
 import sys
 import os
 
@@ -18,6 +21,7 @@ from PIL import Image
 from PIL import ImageTk
 
 from UI_timing_functions import Clock
+from UI_splicer_functions import Strip
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 # from LinescanRecord import UI_IDS_functions as UI_IDS_f
@@ -26,8 +30,10 @@ sys.path.append(
 # from LinescanRecord.UI_IDS_functions import IDSPreview_stop
 
 #Linescann
-from LinescanRecord.UI_IDS_functions3 import IDSSettings, IDSPreview2, IDSPreview_standalone
-from LinescanRecord.UI_IDS_functions3 import IDSPreview_stop
+from LinescanRecord.UI_IDS_functions3 import IDSSettings, IDSPreview_standalone
+# from LinescanRecord.UI_IDS_functions3 import IDSPreview_stop
+from LinescanRecord.UI_IDS_functions3 import IDS
+
 
 
 from pyueye import ueye
@@ -114,7 +120,9 @@ def IDSStartPreview():
     sys.stdout.flush()
     global PreviewStatus
     PreviewStatus = False
-    IDSPreview2()
+    
+    IDS(w).IDSPreview2()
+    cv2.imshow("SimpleLive_Python_uEye_OpenCV", frame)                                
     # IDSCapturePreview()
 
 def IDSCapturePreview():
@@ -193,16 +201,17 @@ def IDSCapturePreview():
 def IDSStopPreview():
     print('UI_Page_support.IDSStopPreview')
     sys.stdout.flush()
-    IDSPreview_stop()
+    # IDSPreview_stop()
+    IDS(w).IDSPreview_stop
 
     PreviewStatus = False
     print("Strop Preview",PreviewStatus)
     # -------------------------------
-    thread.stop()
-    thread.join()
+    # thread.stop()
+    # thread.join()
 
-    cam.stop_video()
-    cam.exit()
+    # cam.stop_video()
+    # cam.exit()
 
 def LoadParticipantsCSV():
     print('UI_Page_support.LoadParticipantsCSV')
@@ -224,6 +233,11 @@ def StripGoRight():
     print('UI_Page_support.StripGoRight')
     sys.stdout.flush()
 
+def StripScrollScale(*args):
+    val = int(args[0])
+    # StripScale = Strip(w)
+    Strip(w).UpdateStripCanvas(val)
+
 def StripShowNormal():
     print('UI_Page_support.StripShowNormal')
     sys.stdout.flush()
@@ -234,6 +248,7 @@ def TimerStart():
     # Timerstarted = 1
     TimerTime = Clock(w)
     TimerTime.TimerStart()
+    TimerTime.PreviewCanvasTest()
     # TimerTime.TimerTick()
 
 def TimerStop():
@@ -255,6 +270,8 @@ def init(top, gui, *args, **kwargs):
     top_level = top
     root = top
     Clock(w).Ticking()
+    IDS(w)
+    # Strip(w)
 
 
 def destroy_window():

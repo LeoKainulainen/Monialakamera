@@ -42,6 +42,20 @@ import cv2
 import sys
 import time
 
+from PIL import Image, ImageTk
+
+try:
+    import Tkinter as tk
+except ImportError:
+    import tkinter as tk
+
+try:
+    import ttk
+    py3 = False
+except ImportError:
+    import tkinter.ttk as ttk
+    py3 = True
+
 #---------------------------------------------------------------------------------------------------------------------------------------
 
 #Variables
@@ -439,95 +453,115 @@ def IDSSettings():
 # class:
 #     def __init__(self):
 #         def IDSPreview(self):
+class IDS:
+    def __init__(self, w):
+        self.w = w
+    def IDSPreview2(self):
+        global nRet
+        print(nRet)
+        # self.w = w
+        while(nRet == ueye.IS_SUCCESS):
+            self.frame_timer = time.time()
+            # In order to display the image in an OpenCV window we need to...
+            # ...extract the data of our image memory
+            array = ueye.get_data(pcImageMemory, width, height, nBitsPerPixel, pitch, copy=False)
 
-def IDSPreview2():
-    global nRet
-    print(nRet)
-    while(nRet == ueye.IS_SUCCESS):
-        frame_timer = time.time()
-        # In order to display the image in an OpenCV window we need to...
-        # ...extract the data of our image memory
-        array = ueye.get_data(pcImageMemory, width, height, nBitsPerPixel, pitch, copy=False)
+            # bytes_per_pixel = int(nBitsPerPixel / 8)
 
-        # bytes_per_pixel = int(nBitsPerPixel / 8)
+            # ...reshape it in an numpy array...
+            self.frameIn = np.reshape(array,(height.value, width.value, bytes_per_pixel))
+                # Check if image is not the same as previous
+            # global frame
+            self.frame = None
+            if not np.array_equal(self.frameIn, self.frame):
 
-        # ...reshape it in an numpy array...
-        frameIn = np.reshape(array,(height.value, width.value, bytes_per_pixel))
-            # Check if image is not the same as previous
-        frame = None
-        if not np.array_equal(frameIn, frame):
+                # ...resize the image by a half
 
-            # ...resize the image by a half
+                # cv2.rectangle(frame,(100,200),(200,300),(0,0,255),5)
 
-            # cv2.rectangle(frame,(100,200),(200,300),(0,0,255),5)
-
-            # cv2width = int(width)
-            # cv2height = int(height/2)
-
-
-
-
-            # cv2.line(frame,(0,height),(width,height),(255,255,255),5)
-
-            frame = cv2.resize(frameIn,(0,0),fx=0.25, fy=0.25)
-            
-            frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-            
-            
-        #---------------------------------------------------------------------------------------------------------------------------------------
-            #Include image data processing here
-
-        #---------------------------------------------------------------------------------------------------------------------------------------
-            # Print FPS
-            # 
-            # 
-            CurrentFPS = ueye.DOUBLE()
-            ueye.is_GetFramesPerSecond(hCam, CurrentFPS)
-            CurrentFPS = CurrentFPS * height/2
-            print("CurrentFPS: ", CurrentFPS)
-
-            targetFPS = ueye.double(1007) # insert here which FPS you want
-            actualFPS = ueye.double()
-            nRet = ueye.is_SetFrameRate(hCam,targetFPS,actualFPS)
-            print("is_SetFrameRate returns " + str(nRet) + ", Actual FPS is: " + str(actualFPS) + "Target FPS is: " + str(targetFPS))
-            print("CurrentFPS: ", actualFPS)
-            if CurrentFPS != 0:
-                global sleepTime
-                sleepTime = (height/2 / CurrentFPS) * 1/4
-                time.sleep(sleepTime)
-                print("Sleeptime", sleepTime)
-            else:
-                sleepTimeNoFPS = 0.25
-                time.sleep(sleepTimeNoFPS)
-            #time.sleep(1)
-            
-
-            # Print frame time on screen
-            font                   = cv2.FONT_HERSHEY_SIMPLEX
-            # bottomLeftCornerOfText = (500,350)
-            topRightCornerOfText = (0,480)
-            fontScale              = 0.75
-            fontColor              = (255,255,255)
-            lineType               = 2
-            
-            cv2.putText(frame,"--- Total Running time --- %s seconds ---" % (time.time() - frame_timer), 
-            # bottomLeftCornerOfText, 
-            topRightCornerOfText,
-            font, 
-            fontScale,
-            fontColor,
-            lineType)
-
-            # print("--- Total Running time --- %s seconds ---" % (time.time() - frame_timer))
+                # cv2width = int(width)
+                # cv2height = int(height/2)
 
 
-            #...and finally display it
 
-            cv2.imshow("SimpleLive_Python_uEye_OpenCV", frame)
-            # time.sleep()
-            # Press q if you want to end the loop
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+
+                # cv2.line(frame,(0,height),(width,height),(255,255,255),5)
+
+                self.frame = cv2.resize(self.frameIn,(0,0),fx=0.25, fy=0.25)
+                
+                self.frame = cv2.rotate(self.frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                
+                
+            #---------------------------------------------------------------------------------------------------------------------------------------
+                #Include image data processing here
+
+            #---------------------------------------------------------------------------------------------------------------------------------------
+                # Print FPS
+                # 
+                # 
+                CurrentFPS = ueye.DOUBLE()
+                ueye.is_GetFramesPerSecond(hCam, CurrentFPS)
+                CurrentFPS = CurrentFPS * height/2
+                print("CurrentFPS: ", CurrentFPS)
+
+                targetFPS = ueye.double(1007) # insert here which FPS you want
+                actualFPS = ueye.double()
+                nRet = ueye.is_SetFrameRate(hCam,targetFPS,actualFPS)
+                print("is_SetFrameRate returns " + str(nRet) + ", Actual FPS is: " + str(actualFPS) + "Target FPS is: " + str(targetFPS))
+                print("CurrentFPS: ", actualFPS)
+                if CurrentFPS != 0:
+                    global sleepTime
+                    self.sleepTime = (height/2 / CurrentFPS) * 1/4
+                    time.sleep(self.sleepTime)
+                    print("Sleeptime", self.sleepTime)
+                else:
+                    self.sleepTimeNoFPS = 0.25
+                    time.sleep(self.sleepTimeNoFPS)
+                #time.sleep(1)
+                
+
+                # Print frame time on screen
+                font                   = cv2.FONT_HERSHEY_SIMPLEX
+                # bottomLeftCornerOfText = (500,350)
+                topRightCornerOfText = (0,480)
+                fontScale              = 0.75
+                fontColor              = (255,255,255)
+                lineType               = 2
+                
+                cv2.putText(self.frame,"--- Total Running time --- %s seconds ---" % (time.time() - self.frame_timer), 
+                # bottomLeftCornerOfText, 
+                topRightCornerOfText,
+                font, 
+                fontScale,
+                fontColor,
+                lineType)
+
+                # print("--- Total Running time --- %s seconds ---" % (time.time() - frame_timer))
+
+
+                #...and finally display it
+
+                # cv2.imshow("SimpleLive_Python_uEye_OpenCV", self.frame)
+                
+                # time.sleep()
+                # Press q if you want to end the loop
+                # if cv2.waitKey(1) & 0xFF == ord('q'):
+                #     break
+                self.image=Image.frombytes('L', (self.frame.shape[1],self.frame.shape[0]), self.frame.astype('b').tostring())
+                self.imageCanvas = ImageTk.PhotoImage(self.image)
+                self.w.IDSPreviewCanvas2.create_image(0,0,image=self.imageCanvas,anchor=tk.NW)
+                cv2.imshow("SimpleLive_Python_uEye_OpenCV", self.frame)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+    def IDSPreview_stop(self):
+        # Releases an image memory that was allocated using is_AllocImageMem() and removes it from the driver management
+        ueye.is_FreeImageMem(hCam, pcImageMemory, MemID)
+
+        # Disables the hCam camera handle and releases the data structures and memory areas taken up by the uEye camera
+        ueye.is_ExitCamera(hCam)
+
+        # Destroys the OpenCv windows
+        cv2.destroyAllWindows()
 
 def IDSPreview():
     print("Starting IDS Camera Preview")
@@ -631,16 +665,6 @@ def IDSPreview():
     print("is_SetFrameRate returns " + str(nRet) + ", Actual FPS is: " + str(actualFPS) + "Target FPS is: " + str(targetFPS))
 
     print()
-
-def IDSPreview_stop():
-    # Releases an image memory that was allocated using is_AllocImageMem() and removes it from the driver management
-    ueye.is_FreeImageMem(hCam, pcImageMemory, MemID)
-
-    # Disables the hCam camera handle and releases the data structures and memory areas taken up by the uEye camera
-    ueye.is_ExitCamera(hCam)
-
-    # Destroys the OpenCv windows
-    cv2.destroyAllWindows()
 
 
 
