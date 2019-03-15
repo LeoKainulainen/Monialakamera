@@ -294,7 +294,7 @@ class Toplevel1:
         tooltip_font = "-family {DejaVu Sans} -size 12"
         ToolTip(self.Button1, tooltip_font, '''Start the Timer and camera capture''', delay=0.5)
 
-        self.StripScrollScale1 = tk.Scale(self.TNotebook1_t0, from_=0.0, to=100.0)
+        self.StripScrollScale1 = tk.Scale(self.TNotebook1_t0, from_=1000, to=0.0)
         self.StripScrollScale1.place(relx=0.007, rely=0.94, relwidth=0.799
                 , relheight=0.0, height=64, bordermode='ignore')
         self.StripScrollScale1.configure(activebackground="#f9f9f9")

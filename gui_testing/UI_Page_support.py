@@ -30,7 +30,7 @@ sys.path.append(
 # from LinescanRecord.UI_IDS_functions import IDSPreview_stop
 
 #Linescann
-from LinescanRecord.UI_IDS_functions3 import IDSSettings, IDSPreview_standalone
+from LinescanRecord.UI_IDS_functions3 import IDSSettings, IDSPreview_standalone, startCamera
 # from LinescanRecord.UI_IDS_functions3 import IDSPreview_stop
 from LinescanRecord.UI_IDS_functions3 import IDS
 
@@ -86,41 +86,13 @@ def FinishDirectionRtoL():
     print('UI_Page_support.FinishDirectionRtoL')
     sys.stdout.flush()
 
-def process_image(self, image_data):
-    # reshape the image data as 1dimensional array
-    image = image_data.as_1d_image()
-    # make a gray image
-    # image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # image = cv2.medianBlur(image,5)
-    # find circles in the image
-    # circles = cv2.HoughCircles(image, cv2.HOUGH_GRADIENT, 1.2, 100)
-    # make a color image again to mark the circles in green
-    # image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-
-    # if circles is not None:
-    #     # convert the (x, y) coordinates and radius of the circles to integers
-    #     circles = np.round(circles[0, :]).astype("int")
-    #     # loop over the (x, y) coordinates and radius of the circles
-    #     for (x, y, r) in circles:
-    #         # draw the circle in the output image, then draw a rectangle
-    #         # corresponding to the center of the circle
-    #         cv2.circle(image, (x, y), r, (0, 255, 0), 6)
-
-    print(image_data)
-    # show the image with Qt
-    return image
-    # return QtGui.QImage(image.data,
-    #                     image_data.mem_info.width,
-    #                     image_data.mem_info.height,
-    #                     QtGui.QImage.Format_RGB888)
-
 
 def IDSStartPreview():
     print('UI_Page_support.IDSStartPreview')
     sys.stdout.flush()
     global PreviewStatus
     PreviewStatus = False
-    
+    startCamera()
     IDS(w).IDSPreview2()
     cv2.imshow("SimpleLive_Python_uEye_OpenCV", frame)                                
     # IDSCapturePreview()
@@ -233,10 +205,27 @@ def StripGoRight():
     print('UI_Page_support.StripGoRight')
     sys.stdout.flush()
 
+
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
+from LinescanRecord import splicer_shelve
+
 def StripScrollScale(*args):
+    print('UI_Page_support.StripScrollScale')
+    sys.stdout.flush()
     val = int(args[0])
     # StripScale = Strip(w)
+    # stripPosition = int(args[0])
+    # print(type(stripPosition), stripPosition)
+    # stripPositionSplice = stripPosition + 10
+    # im = splicer_shelve.join_splices_from_shelve(stripPositionSplice-10, stripPositionSplice)
     Strip(w).UpdateStripCanvas(val)
+    # while True:
+    #     cv2.imshow('frame', im)
+    #     key = cv2.waitKey(0) & 0xff
+    #     if key == 27:
+    #         print("Update StripCanvas1")
+    #         break
 
 def StripShowNormal():
     print('UI_Page_support.StripShowNormal')
@@ -255,6 +244,7 @@ def TimerStop():
     print('UI_Page_support.TimerStop')
     sys.stdout.flush()
     Clock(w).TimerStop()
+    StripScrollScale(1)
     print("testing")
 
 def OneTimerStartStop():
