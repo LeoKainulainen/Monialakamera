@@ -133,6 +133,8 @@ def join_splices_from_shelve(percent_start, percent_stop):
 app_start_time = time.time()
 
 date = datetime.now()
+
+## Luo tietokannan, pitää olla tehynä, jotta käyttöliittymädemo toimii oikein (ei tarvitse tehdä kuin kerran yhdelle kuvalle)
 # splice_image_shelve()
 join_splices_from_shelve(80, 100)
 print(type(slice))
