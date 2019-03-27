@@ -464,24 +464,24 @@ class Toplevel1:
         tooltip_font = "-family {DejaVu Sans} -size 12"
         ToolTip(self.LineTimeText1, tooltip_font, '''Time of the line on the strip''', delay=0.5)
 
-      #  self.BibNumText1 = tk.Text(self.TNotebook1_t1)
-      #  self.BibNumText1.place(relx=0.689, rely=0.209, relheight=0.069
-      #          , relwidth=0.093)
-       # self.BibNumText1.configure(background="white")
-       # self.BibNumText1.configure(font=font19)
-       # self.BibNumText1.configure(selectbackground="#c4c4c4")
-      #  self.BibNumText1.configure(width=126)
-        #self.BibNumText1.configure(wrap='word')
+        self.BibNumText1 = tk.Text(self.TNotebook1_t1)
+        self.BibNumText1.place(relx=0.689, rely=0.209, relheight=0.069
+                , relwidth=0.093)
+        self.BibNumText1.configure(background="white")
+        self.BibNumText1.configure(font=font19)
+        self.BibNumText1.configure(selectbackground="#c4c4c4")
+        self.BibNumText1.configure(width=126)
+        self.BibNumText1.configure(wrap='word')
 
         self.Label2 = tk.Label(self.TNotebook1_t1)
         self.Label2.place(relx=0.533, rely=0.164, height=18, width=206)
         self.Label2.configure(activebackground="#f9f9f9")
         self.Label2.configure(text='''Time''')
 
-       # self.Label2 = tk.Label(self.TNotebook1_t1)
-      #  self.Label2.place(relx=0.689, rely=0.164, height=18, width=126)
-      #  self.Label2.configure(activebackground="#f9f9f9")
-      #  self.Label2.configure(text='''BIB NUM''')
+        self.Label2 = tk.Label(self.TNotebook1_t1)
+        self.Label2.place(relx=0.689, rely=0.164, height=18, width=126)
+        self.Label2.configure(activebackground="#f9f9f9")
+        self.Label2.configure(text='''BIB NUM''')
 
         self.Button3 = tk.Button(self.TNotebook1_t1)
         self.Button3.place(relx=0.13, rely=0.209, height=48, width=119)

@@ -192,8 +192,9 @@ def IDSStopPreview():
 def LoadParticipantsCSV():
     print('UI_Page_support.LoadParticipantsCSV')
     sys.stdout.flush()
-    CSVfilename = tk.filedialog.asksaveasfilename(defaultextension='.csv',
+    CSVfilename = tk.filedialog.askopenfilename(defaultextension='.csv',
                                                   filetypes=[("CSV files","*.csv")] )
+    ShelveSaveDir = tk.filedialog.askdirectory()
 
 def SaveResultsCSV():
     print('UI_Page_support.SaveResultsCSV')
@@ -302,16 +303,22 @@ def init(top, gui, *args, **kwargs):
 
     
 
-    w.ExplorerResultsLabelframe1.data2 = {'rec1': {'BIB': 0, 'Name': "NaN", 'Time': 0}
+    # w.ExplorerResultsLabelframe1.data2 = {'rec1': {'BIB': "1", 'Name': "Jou", 'Time': "100"}
     
-    } 
+    # } 
 
     # w.table = 
     # table = TableCanvas(w.ExplorerResultsLabelframe1, data=data2)
     # Bind table variable to w.ExplorerResultsLabelframe1 -object
-    table = TableCanvas(w.ExplorerResultsLabelframe1, data=w.ExplorerResultsLabelframe1.data2,)
+    table = TableCanvas(w.ExplorerResultsLabelframe1,rowheaderwidth=30, cellwidth=110, rowheight=20, rows=0, cols=0)
     w.ExplorerResultsLabelframe1.table = table
-    w.ExplorerResultsLabelframe1.table.adjustColumnWidths()
+    w.ExplorerResultsLabelframe1.table.createTableFrame()
+    w.ExplorerResultsLabelframe1.table.addColumn(newname="BIB")
+    w.ExplorerResultsLabelframe1.table.addColumn(newname="Name")
+    w.ExplorerResultsLabelframe1.table.addColumn(newname="Time")
+    w.ExplorerResultsLabelframe1.table.resizeColumn(0,10)
+    w.ExplorerResultsLabelframe1.table.resizeColumn(2,110)
+
     # w.ExplorerResultsLabelframe1.table.autoResizeColumns()
     w.ExplorerResultsLabelframe1.table.show()
     

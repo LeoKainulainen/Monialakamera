@@ -108,6 +108,11 @@ class ShelveExplorer():
         line_list.append(event.x+(value*1000))
         print(line_list)
         time_list.append(self.motion(event))
+
+        # no listing kept other than table, future use should be with lists
+        self.times = self.motion(event)
+
+        self.tableFiller()
         
     def tableFiller(self):
         global time_list
@@ -116,11 +121,17 @@ class ShelveExplorer():
         
         #data[row][col] = value #use row and column names, not cell coordinates
         print(cols)
-        self.w.ExplorerResultsLabelframe1.table.clearData()
+        # self.w.ExplorerResultsLabelframe1.table.clearData()
+        # self.w.ExplorerResultsLabelframe1.table.new
         # self.w.ExplorerResultsLabelframe1.table.redrawTable()
-        for times in time_list:
-            self.w.ExplorerResultsLabelframe1.table.addRow(times, Time=times)
+        # for times in time_list:
+        #     # check if time already on table here
+        #     self.w.ExplorerResultsLabelframe1.table.addRow(Time=times)
+        self.w.ExplorerResultsLabelframe1.table.addRow(Time=self.times)
         self.w.ExplorerResultsLabelframe1.table.redrawTable()
+        # self.w.ExplorerResultsLabelframe1.table.adjustColumnWidths()
+        # self.w.ExplorerResultsLabelframe1.table.autoResizeColumns()
+        
         
 
 
@@ -129,6 +140,7 @@ class ShelveExplorer():
     def deleteLines(self):
         global line_list
         line_list = []
+        time_list.clear()
         print("Deleted lines")
         self.w.ShelveExplorerCanvas3.delete('line')
 
