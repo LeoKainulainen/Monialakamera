@@ -55,123 +55,7 @@ def printer():
     print("hello")
 
 class Toplevel1:
-    global value, im, width, height, stamp_list, line_list, tulos_lista, time_list
-    value = 1
-    im = Image.open(Path("test_images") / "1-peloton-finishlynx.jpg")
-    date = datetime.now()
-    stamp_list = []
-    line_list = []
-    tulos_lista = []
-    time_list = []
-    width, height = im.size
-    for i in range (width):
-        date_combo = date + timedelta(milliseconds=i)
-        time_stamp = date_combo.strftime('%H:%M:%S.%f')[:-2]
-        stamp_list.append(time_stamp)
 
-
-  
-    print(len(stamp_list))
-    
-    
-    
-    def explore(self):
-            print(value)
-            pic = ImageTk.PhotoImage(im.crop((0, 0, 1000, height)))
-            self.ShelveExplorerCanvas3.create_image(0, 0, image=pic, anchor="nw")
-            self.ShelveExplorerCanvas3.image = pic
-            
-            
-    def goRight(self):
-
-     global value, width
-     
-     print(width)
-     if value > width/1000:
-         print("Cant go right")
-     else:
-         print("Going right")
-         print(value)
-         self.ShelveExplorerCanvas3.delete("all")
-         pic = ImageTk.PhotoImage(im.crop(((value*1000), 0, ((1+value)*1000), height)))
-         self.ShelveExplorerCanvas3.create_image(0, 0, image=pic, anchor="nw")
-         self.ShelveExplorerCanvas3.image = pic
-         value += 1
-         self.keepLines()
-
-    def goLeft(self):
-        global value, width
-        if value == 1:
-            print("Cant go left")
-            
-            
-
-        else:
-            value -= 1
-            print("Going left")
-            self.ShelveExplorerCanvas3.delete("all")
-            pic = ImageTk.PhotoImage(im.crop(((value*1000-1000), 0, (value*1000), height)))
-            self.ShelveExplorerCanvas3.create_image(0, 0, image=pic, anchor="nw")
-            self.ShelveExplorerCanvas3.image = pic
-            
-            print(value)
-            self.keepLines()
-
-    def leftClick(self, event):
-        global line_list, value, time_list
-        
-        self.ShelveExplorerCanvas3.create_line(event.x, 0, event.x, height, tag='line')
-        line_list.append(event.x+(value*1000))
-        print(line_list)
-        time_list.append(self.motion(event))
-        
-        
-        
-        
-        
-
-    def deleteLines(self):
-        global line_list
-        line_list = []
-        print("Deleted lines")
-        self.ShelveExplorerCanvas3.delete('line')
-
-    def keepLines(self):
-        global line_list, value, working_line_list
-        line_list.sort()
-        print(line_list)
-        print("value is " + str(value))
-        value_thousands = 1000*value
-        print("valuethousands is " + str(value_thousands))
-        for items in line_list:
-            if items > value_thousands and items < value_thousands+1000:
-                self.ShelveExplorerCanvas3.create_line(items-value_thousands, 0, items-value_thousands, height, tag='line')
-                print(items)
-            
-           
-        
-        
-
-    def motion(self, event):
-      global stamp_list
-      try:
-        working_list = stamp_list[value*1000:value*1000+1000]
-        x = event.x
-        self.LineTimeText1.delete('1.0', END)
-        self.LineTimeText1.insert('1.0', "Time of the frame is " + str(working_list[event.x]))
-        self.ShelveExplorerCanvas3.delete('constant')
-        self.ShelveExplorerCanvas3.create_line(event.x, 0, event.x, height, tag='constant')
-        
-        return working_list[event.x]
-      except IndexError:
-        pass
-
-
-    def addTimes(self):
-        global time_list
-        model = self.table.model
-        #model.importDict(data) 
-       # table.redraw()
         
     
     def __init__(self, top=None):
@@ -550,18 +434,18 @@ class Toplevel1:
         self.Button3 = tk.Button(self.TNotebook1_t1)
         self.Button3.place(relx=0.326, rely=0.209, height=48, width=119)
         self.Button3.configure(activebackground="#f9f9f9")
-        self.Button3.configure(command=UI_Page_support.StripGoLeft)
+        self.Button3.configure(command=UI_Page_support.StripGoLeft);
         self.Button3.configure(text='''Go Left''')
         tooltip_font = "-family {DejaVu Sans} -size 12"
         ToolTip(self.Button3, tooltip_font, '''Go left on the strip (~1000 slices)''', delay=0.5)
-        self.Button3.configure(command=self.goLeft);
+        # self.Button3.configure(command=UI_Page_support.ShelveExplorer(w).goLeft);
         
 
         self.Button3 = tk.Button(self.TNotebook1_t1)
         self.Button3.place(relx=0.422, rely=0.209, height=48, width=129)
         self.Button3.configure(activebackground="#f9f9f9")
         self.Button3.configure(text='''Go right''')
-        self.Button3.configure(command=self.goRight);
+        self.Button3.configure(command=UI_Page_support.StripGoRight);
         
 
 
@@ -603,36 +487,25 @@ class Toplevel1:
         self.Button3.place(relx=0.13, rely=0.209, height=48, width=119)
         self.Button3.configure(activebackground="#f9f9f9")
         self.Button3.configure(text='''Initialize canvas''')
-        self.Button3.configure(command=self.explore);
+        self.Button3.configure(command=UI_Page_support.InitializeCanvas);
         
         self.Button3 = tk.Button(self.TNotebook1_t1)
         self.Button3.place(relx=0.23, rely=0.209, height=48, width=119)
         self.Button3.configure(activebackground="#f9f9f9")
         self.Button3.configure(text='''Delete lines''')
-        self.Button3.configure(command=self.deleteLines);
-
-        def tableFiller():
-            global time_list
-            data = table.model.data
-            cols = table.model.columnNames #get the current columns
-            
-            #data[row][col] = value #use row and column names, not cell coordinates
-            print(cols)
-            for times in time_list:
-                table.addRow(times, Time=times)
-            table.redrawTable()
+        self.Button3.configure(command=UI_Page_support.deleteLines);
 
         self.Button3 = tk.Button(self.TNotebook1_t1)
         self.Button3.place(relx=0.793, rely=0.109, height=48, width=119)
         self.Button3.configure(activebackground="#f9f9f9")
         self.Button3.configure(text='''Add times''')
-        self.Button3.configure(command=tableFiller);
+        self.Button3.configure(command=UI_Page_support.tableFiller);
 
         self.Button3 = tk.Button(self.TNotebook1_t1)
         self.Button3.place(relx=0.893, rely=0.109, height=48, width=119)
         self.Button3.configure(activebackground="#f9f9f9")
         self.Button3.configure(text='''Stop adding times''')
-        self.Button3.configure(command=self.deleteLines);
+        self.Button3.configure(command=UI_Page_support.deleteLines);
         
         tooltip_font = "-family {DejaVu Sans} -size 12"
         ToolTip(self.Button3, tooltip_font, '''Delete the lines from Canvas''', delay=0.5)
@@ -643,21 +516,6 @@ class Toplevel1:
         self.ExplorerResultsLabelframe1.configure(relief='groove')
         self.ExplorerResultsLabelframe1.configure(text='''Results & YOLOv3 Objects''')
         self.ExplorerResultsLabelframe1.configure(width=270)
-        
-        
-       
-        data2 = {'rec1': {'BIB': 0, 'Name': "NaN", 'Time': 0}
-        
-       } 
-
-        
-
-        table = TableCanvas(self.ExplorerResultsLabelframe1, data=data2)
-
-        table.show()
-
-
-        
         
         self.PixelClockScale1 = tk.Scale(self.TNotebook1_t2, from_=0.0, to=100.0)
         self.PixelClockScale1.place(relx=0.03, rely=0.164, relwidth=0.228
@@ -805,9 +663,10 @@ class Toplevel1:
         self.style.configure('TSizegrip', background=_bgcolor)
         self.TSizegrip1 = ttk.Sizegrip(top)
         self.TSizegrip1.place(anchor='se', relx=1.0, rely=1.0)
-        self.ShelveExplorerCanvas3.bind("<Button-1>", self.leftClick);
-        self.ShelveExplorerCanvas3.bind('<Motion>', self.motion);
-
+        # self.ShelveExplorerCanvas3.bind("<Button-1>", self.leftClick);
+        # self.ShelveExplorerCanvas3.bind('<Motion>', self.motion);
+        self.ShelveExplorerCanvas3.bind("<Button-1>", UI_Page_support.leftClick);
+        self.ShelveExplorerCanvas3.bind('<Motion>', UI_Page_support.motion);
 # ======================================================
 # Modified by Rozen to remove Tkinter import statements and to receive 
 # the font as an argument.

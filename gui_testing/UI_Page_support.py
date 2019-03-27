@@ -22,6 +22,10 @@ from PIL import ImageTk
 
 from UI_timing_functions import Clock
 from UI_splicer_functions import Strip
+from shelve_explorer import ShelveExplorer
+
+from tkintertable import TableCanvas, TableModel
+
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 # from LinescanRecord import UI_IDS_functions as UI_IDS_f
@@ -174,7 +178,7 @@ def IDSStopPreview():
     print('UI_Page_support.IDSStopPreview')
     sys.stdout.flush()
     # IDSPreview_stop()
-    IDS(w).IDSPreview_stop
+    IDS(w).IDSPreview_stop()
 
     PreviewStatus = False
     print("Strop Preview",PreviewStatus)
@@ -188,10 +192,17 @@ def IDSStopPreview():
 def LoadParticipantsCSV():
     print('UI_Page_support.LoadParticipantsCSV')
     sys.stdout.flush()
+    CSVfilename = tk.filedialog.asksaveasfilename(defaultextension='.csv',
+                                                  filetypes=[("CSV files","*.csv")] )
 
 def SaveResultsCSV():
     print('UI_Page_support.SaveResultsCSV')
     sys.stdout.flush()
+    # SaveResultsfilename = filedialog.asksaveasfilename(parent=parent,defaultextension='.csv',
+                                                #   filetypes=[("CSV files","*.csv")] )
+    SaveResultsfilename = tk.filedialog.asksaveasfilename(defaultextension='.csv',
+                                                  filetypes=[("CSV files","*.csv")] )
+
 
 def StripDetectYoloV3():
     print('UI_Page_support.StripDetectYoloV3')
@@ -200,11 +211,24 @@ def StripDetectYoloV3():
 def StripGoLeft():
     print('UI_Page_support.StripGoLeft')
     sys.stdout.flush()
+    w.ShelveExplorerTab.goLeft()
 
 def StripGoRight():
     print('UI_Page_support.StripGoRight')
     sys.stdout.flush()
+    w.ShelveExplorerTab.goRight()
 
+def InitializeCanvas():
+    w.ShelveExplorerTab.explore()
+
+
+
+def deleteLines():
+    w.ShelveExplorerTab.deleteLines()
+
+def tableFiller():
+    
+    w.ShelveExplorerTab.tableFiller()
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
@@ -219,7 +243,7 @@ def StripScrollScale(*args):
     # print(type(stripPosition), stripPosition)
     # stripPositionSplice = stripPosition + 10
     # im = splicer_shelve.join_splices_from_shelve(stripPositionSplice-10, stripPositionSplice)
-    Strip(w).UpdateStripCanvas(val)
+    w.Strip.UpdateStripCanvas(val)
     # while True:
     #     cv2.imshow('frame', im)
     #     key = cv2.waitKey(0) & 0xff
@@ -251,6 +275,11 @@ def OneTimerStartStop():
     TimerTime = Clock(w)
     TimerTime.TimerStart()
 
+def motion(event):
+    w.ShelveExplorerTab.motion(event)
+
+def leftClick(event):
+    w.ShelveExplorerTab.leftClick(event)
 
 
 
@@ -259,7 +288,37 @@ def init(top, gui, *args, **kwargs):
     w = gui
     top_level = top
     root = top
+    # Initialize classes
+
+    # Clock
+
     Clock(w).Ticking()
+
+    # Strip and scrolling
+    w.Strip = Strip(w)
+
+    # Explorer
+    w.ShelveExplorerTab = ShelveExplorer(w)
+
+    
+
+    w.ExplorerResultsLabelframe1.data2 = {'rec1': {'BIB': 0, 'Name': "NaN", 'Time': 0}
+    
+    } 
+
+    # w.table = 
+    # table = TableCanvas(w.ExplorerResultsLabelframe1, data=data2)
+    # Bind table variable to w.ExplorerResultsLabelframe1 -object
+    table = TableCanvas(w.ExplorerResultsLabelframe1, data=w.ExplorerResultsLabelframe1.data2,)
+    w.ExplorerResultsLabelframe1.table = table
+    w.ExplorerResultsLabelframe1.table.adjustColumnWidths()
+    # w.ExplorerResultsLabelframe1.table.autoResizeColumns()
+    w.ExplorerResultsLabelframe1.table.show()
+    
+
+    # ShelveExplorer(w).explore()
+    # ShelveExplorer(w).leftClick()
+    
     IDS(w)
     # Strip(w)
 
